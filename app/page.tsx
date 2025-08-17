@@ -4,55 +4,10 @@ import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { Progress } from "@/components/ui/progress"
-import { Trophy, Star, Award, CheckCircle } from "lucide-react"
-
-interface Question {
-  id: number
-  scenario: string
-  friendQuestion: string
-  options: string[]
-  correctAnswer: number
-  explanation: string
-  category: string
-  emoji: string
-  type: "question"
-}
-
-interface ConversationMessage {
-  speaker: "person1" | "person2"
-  message: string
-  name: string
-  emoji: string
-}
-
-interface ConversationStep {
-  messages: ConversationMessage[]
-  choice?: {
-    prompt: string
-    options: [string, string]
-    outcomes: [ConversationMessage[], ConversationMessage[]] // Different messages for each option
-  }
-}
-
-interface Conversation {
-  id: number
-  title: string
-  description: string
-  steps: ConversationStep[]
-  category: string
-  type: "conversation"
-}
-
-type InteractionItem = Question | Conversation
-
-interface UserProgress {
-  score: number
-  streak: number
-  totalQuestions: number
-  correctAnswers: number
-  badges: string[]
-  level: number
-}
+import { Trophy, Star, Award } from "lucide-react"
+import { QuestionComponent } from "@/components/question-component"
+import { ConversationComponent } from "@/components/conversation-component"
+import { InteractionItem, UserProgress, Question, Conversation } from "@/lib/types"
 
 const interactions: InteractionItem[] = [
   {
@@ -301,15 +256,7 @@ export default function ChristianityLearningApp() {
   const [currentIndex, setCurrentIndex] = useState(0)
   const [selectedAnswer, setSelectedAnswer] = useState<number | null>(null)
   const [showResult, setShowResult] = useState(false)
-  const [showExplanation, setShowExplanation] = useState(false)
-  const [conversationStep, setConversationStep] = useState(0)
   const [conversationChoice, setConversationChoice] = useState<number | null>(null)
-  const [renderedMessages, setRenderedMessages] = useState<React.ReactNode[]>([])
-  const [showChoicePrompt, setShowChoicePrompt] = useState(false)
-  const [showScenario, setShowScenario] = useState(false)
-  const [showFriendQuestion, setShowFriendQuestion] = useState(false)
-  const [showOptions, setShowOptions] = useState(false)
-  const [visibleOptions, setVisibleOptions] = useState<number[]>([])
   const [userProgress, setUserProgress] = useState<UserProgress>({
     score: 0,
     streak: 0,
@@ -323,85 +270,12 @@ export default function ChristianityLearningApp() {
   const currentItem = interactions[currentIndex]
   const progressPercentage = ((currentIndex + 1) / interactions.length) * 100
 
-  // Progressive message display for conversations
+  // Reset states when moving to next item
   useEffect(() => {
-    if (currentItem.type === "conversation") {
-      setRenderedMessages([])
-      setShowChoicePrompt(false)
-      
-      const initialMessages = currentItem.steps[0].messages
-      let messageIndex = 0
-      
-      const addNextMessage = () => {
-        if (messageIndex < initialMessages.length) {
-          const message = initialMessages[messageIndex]
-          const messageComponent = (
-            <div 
-              key={`initial-${messageIndex}`}
-              className={`flex items-start gap-4 ${message.speaker === "person2" ? "flex-row-reverse" : ""} animate-in fade-in duration-500 slide-in-from-bottom-2`}
-            >
-              <div className="text-3xl">{message.emoji}</div>
-              <div className="flex-1 max-w-[80%]">
-                <div className="text-sm font-medium text-muted-foreground mb-1">
-                  {message.name}
-                </div>
-                <div className={`p-4 relative rounded-lg border ${
-                  message.speaker === "person1" 
-                    ? "bg-blue-50 border-blue-200" 
-                    : "bg-green-50 border-green-200"
-                }`}>
-                  <div className={`absolute ${
-                    message.speaker === "person1"
-                      ? "-left-2 border-r-blue-50"
-                      : "-right-2 border-l-green-50"
-                  } top-4 w-0 h-0 border-t-8 border-b-8 ${
-                    message.speaker === "person1"
-                      ? "border-r-8 border-transparent"
-                      : "border-l-8 border-transparent"
-                  }`}></div>
-                  <p className={`font-medium leading-relaxed ${
-                    message.speaker === "person1" ? "text-blue-900" : "text-green-900"
-                  }`}>
-                    {message.message}
-                  </p>
-                </div>
-              </div>
-            </div>
-          )
-          
-          setRenderedMessages(prev => [...prev, messageComponent])
-          messageIndex++
-          setTimeout(addNextMessage, 800) // 800ms delay between messages
-        } else {
-          // Show choice prompt after all initial messages
-          if (currentItem.steps[0].choice && conversationChoice === null) {
-            setTimeout(() => setShowChoicePrompt(true), 600)
-          }
-        }
-      }
-      
-      // Start showing messages with initial delay
-      setTimeout(addNextMessage, 500)
-    } else {
-      // For questions, progressive display
-      setRenderedMessages([])
-      setShowChoicePrompt(true)
-      setShowScenario(false)
-      setShowFriendQuestion(false)
-      setShowOptions(false)
-      setVisibleOptions([])
-      
-      // Progressive display for question elements
-      setTimeout(() => setShowScenario(true), 300)
-      setTimeout(() => setShowFriendQuestion(true), 800)
-      
-      // Show all options at once with CSS animation delays
-      setTimeout(() => {
-        setShowOptions(true)
-        setVisibleOptions(Array.from({length: currentItem.options.length}, (_, i) => i))
-      }, 1300)
-    }
-  }, [currentIndex, currentItem.type])
+    setSelectedAnswer(null)
+    setShowResult(false)
+    setConversationChoice(null)
+  }, [currentIndex])
 
   const checkForNewBadges = (progress: UserProgress) => {
     const earnedBadges = badges.filter((badge) => {
@@ -421,164 +295,39 @@ export default function ChristianityLearningApp() {
     return earnedBadges.map((badge) => badge.name)
   }
 
-  const handleAnswerSelect = (answerIndex: number) => {
-    if (showResult && currentItem.type === "question") return
+  const handleQuestionAnswer = (answerIndex: number) => {
+    if (showResult) return
     
-    if (currentItem.type === "conversation") {
-      // Store the selected choice
-      setConversationChoice(answerIndex)
-      setShowChoicePrompt(false)
-      
-      // Add selected choice message
-      const choiceComponent = (
-        <div key="choice-selected" className="flex items-start gap-4 animate-in fade-in duration-500 slide-in-from-bottom-2">
-          <div className="text-3xl">😊</div>
-          <div className="flex-1 max-w-[80%]">
-            <div className="text-sm font-medium text-muted-foreground mb-1">
-              나의 선택
-            </div>
-            <div className="p-4 relative rounded-lg border bg-purple-50 border-purple-200">
-              <div className="absolute -left-2 top-4 w-0 h-0 border-t-8 border-b-8 border-r-8 border-transparent border-r-purple-50"></div>
-              <p className="font-medium leading-relaxed text-purple-900">
-                {currentItem.steps[0].choice!.options[answerIndex]}
-              </p>
-            </div>
-          </div>
-        </div>
-      )
-      
-      setRenderedMessages(prev => [...prev, choiceComponent])
-      
-      // Start progressive display of outcome messages
-      const outcomeMessages = currentItem.steps[0].choice!.outcomes[answerIndex]
-      let outcomeIndex = 0
-      
-      const addNextOutcome = () => {
-        if (outcomeIndex < outcomeMessages.length) {
-          const message = outcomeMessages[outcomeIndex]
-          const outcomeComponent = (
-            <div 
-              key={`outcome-${outcomeIndex}`}
-              className={`flex items-start gap-4 ${message.speaker === "person2" ? "flex-row-reverse" : ""} animate-in fade-in duration-500 slide-in-from-bottom-2`}
-            >
-              <div className="text-3xl">{message.emoji}</div>
-              <div className="flex-1 max-w-[80%]">
-                <div className="text-sm font-medium text-muted-foreground mb-1">
-                  {message.name}
-                </div>
-                <div className={`p-4 relative rounded-lg border ${
-                  message.speaker === "person1" 
-                    ? "bg-blue-50 border-blue-200" 
-                    : "bg-green-50 border-green-200"
-                }`}>
-                  <div className={`absolute ${
-                    message.speaker === "person1"
-                      ? "-left-2 border-r-blue-50"
-                      : "-right-2 border-l-green-50"
-                  } top-4 w-0 h-0 border-t-8 border-b-8 ${
-                    message.speaker === "person1"
-                      ? "border-r-8 border-transparent"
-                      : "border-l-8 border-transparent"
-                  }`}></div>
-                  <p className={`font-medium leading-relaxed ${
-                    message.speaker === "person1" ? "text-blue-900" : "text-green-900"
-                  }`}>
-                    {message.message}
-                  </p>
-                </div>
-              </div>
-            </div>
-          )
-          
-          setRenderedMessages(prev => [...prev, outcomeComponent])
-          outcomeIndex++
-          setTimeout(addNextOutcome, 1200) // 1.2 second delay between outcome messages
-        } else {
-          // All outcome messages shown, mark as complete
-          setTimeout(() => {
-            const newProgress = {
-              ...userProgress,
-              totalQuestions: userProgress.totalQuestions + 1,
-              badges: userProgress.badges,
-            }
-            newProgress.badges = checkForNewBadges(newProgress)
-            setUserProgress(newProgress)
-            setShowResult(true)
-          }, 800) // Brief delay before showing completion
-        }
-      }
-      
-      // Start showing outcome messages after a brief delay
-      setTimeout(addNextOutcome, 600)
-    } else {
-      // Immediately show result for questions
-      setSelectedAnswer(answerIndex)
-      const isCorrect = answerIndex === currentItem.correctAnswer
-      const newProgress = {
-        ...userProgress,
-        totalQuestions: userProgress.totalQuestions + 1,
-        correctAnswers: isCorrect ? userProgress.correctAnswers + 1 : userProgress.correctAnswers,
-        streak: isCorrect ? userProgress.streak + 1 : 0,
-        score: isCorrect ? userProgress.score + 10 : userProgress.score,
-        badges: userProgress.badges,
-      }
-      newProgress.badges = checkForNewBadges(newProgress)
-      setUserProgress(newProgress)
-      setShowResult(true)
-      setShowExplanation(true)
+    setSelectedAnswer(answerIndex)
+    const isCorrect = answerIndex === (currentItem as Question).correctAnswer
+    const newProgress = {
+      ...userProgress,
+      totalQuestions: userProgress.totalQuestions + 1,
+      correctAnswers: isCorrect ? userProgress.correctAnswers + 1 : userProgress.correctAnswers,
+      streak: isCorrect ? userProgress.streak + 1 : 0,
+      score: isCorrect ? userProgress.score + 10 : userProgress.score,
+      badges: userProgress.badges,
     }
+    newProgress.badges = checkForNewBadges(newProgress)
+    setUserProgress(newProgress)
+    setShowResult(true)
   }
 
-  const handleSubmitAnswer = () => {
-    if (currentItem.type === "conversation") {
-      if (conversationChoice === null) return
-      // Move to next step in conversation
-      if (conversationStep < currentItem.steps.length - 1) {
-        setConversationStep(conversationStep + 1)
-        setConversationChoice(null)
-      } else {
-        // Conversation finished, just add to progress
-        const newProgress = {
-          ...userProgress,
-          totalQuestions: userProgress.totalQuestions + 1,
-          badges: userProgress.badges,
-        }
-        newProgress.badges = checkForNewBadges(newProgress)
-        setUserProgress(newProgress)
-        setShowResult(true)
-      }
-    } else {
-      if (selectedAnswer === null) return
-      const isCorrect = selectedAnswer === currentItem.correctAnswer
-      const newProgress = {
-        ...userProgress,
-        totalQuestions: userProgress.totalQuestions + 1,
-        correctAnswers: isCorrect ? userProgress.correctAnswers + 1 : userProgress.correctAnswers,
-        streak: isCorrect ? userProgress.streak + 1 : 0,
-        score: isCorrect ? userProgress.score + 10 : userProgress.score,
-        badges: userProgress.badges,
-      }
-      newProgress.badges = checkForNewBadges(newProgress)
-      setUserProgress(newProgress)
-      setShowResult(true)
-      setShowExplanation(true)
+  const handleConversationChoice = (choiceIndex: number) => {
+    setConversationChoice(choiceIndex)
+    const newProgress = {
+      ...userProgress,
+      totalQuestions: userProgress.totalQuestions + 1,
+      badges: userProgress.badges,
     }
+    newProgress.badges = checkForNewBadges(newProgress)
+    setUserProgress(newProgress)
+    setShowResult(true)
   }
 
   const handleNext = () => {
     if (currentIndex < interactions.length - 1) {
       setCurrentIndex(currentIndex + 1)
-      setSelectedAnswer(null)
-      setShowResult(false)
-      setShowExplanation(false)
-      setConversationStep(0)
-      setConversationChoice(null)
-      setRenderedMessages([])
-      setShowChoicePrompt(false)
-      setShowScenario(false)
-      setShowFriendQuestion(false)
-      setShowOptions(false)
-      setVisibleOptions([])
     }
   }
 
@@ -624,168 +373,21 @@ export default function ChristianityLearningApp() {
       {/* Main Content */}
       <div className="p-4 pb-20">
         {currentItem.type === "question" ? (
-          <>
-            {/* Scenario Description */}
-            {showScenario && (
-              <div className="mb-4 animate-in fade-in duration-500 slide-in-from-bottom-2">
-                <Card className="p-4 bg-muted">
-                  <p className="text-base text-muted-foreground leading-relaxed font-bold">{currentItem.scenario}</p>
-                </Card>
-              </div>
-            )}
-
-            {/* Friend's Question */}
-            {showFriendQuestion && (
-              <div className="mb-6 animate-in fade-in duration-500 slide-in-from-bottom-2">
-                <div className="flex items-start gap-4 mb-4">
-                  <div className="text-4xl">{currentItem.emoji}</div>
-                  <div className="flex-1">
-                    <Card className="p-4 bg-blue-50 border-blue-200 relative">
-                      <div className="absolute -left-2 top-4 w-0 h-0 border-t-8 border-b-8 border-r-8 border-transparent border-r-blue-50"></div>
-                      <p className="text-blue-900 font-medium leading-relaxed">{currentItem.friendQuestion}</p>
-                    </Card>
-                  </div>
-                </div>
-              </div>
-            )}
-          </>
+          <QuestionComponent
+            question={currentItem as Question}
+            onAnswerSelect={handleQuestionAnswer}
+            showResult={showResult}
+            selectedAnswer={selectedAnswer}
+            userProgress={userProgress}
+          />
         ) : (
-          <>
-            {/* Conversation Title */}
-            <div className="mb-4">
-              <Card className="p-4 bg-muted">
-                <h2 className="text-lg font-bold text-foreground mb-2">{currentItem.title}</h2>
-                <p className="text-base text-muted-foreground leading-relaxed">{currentItem.description}</p>
-              </Card>
-            </div>
-
-            {/* Conversation Messages */}
-            <div className="mb-6 space-y-4">
-              {renderedMessages}
-              {showChoicePrompt && currentItem.steps[0].choice && (
-                <div className="flex items-start gap-4 animate-in fade-in duration-500 slide-in-from-bottom-2">
-                  <div className="text-3xl">🤔</div>
-                  <div className="flex-1 max-w-[80%]">
-                    <div className="text-sm font-medium text-muted-foreground mb-1">
-                      나의 선택
-                    </div>
-                    <div className="p-4 relative rounded-lg border bg-yellow-50 border-yellow-200">
-                      <div className="absolute -left-2 top-4 w-0 h-0 border-t-8 border-b-8 border-r-8 border-transparent border-r-yellow-50"></div>
-                      <p className="font-medium leading-relaxed text-yellow-900 mb-3">
-                        {currentItem.steps[0].choice.prompt}
-                      </p>
-                      <div className="space-y-2">
-                        {currentItem.steps[0].choice.options.map((option, optionIndex) => (
-                          <button
-                            key={optionIndex}
-                            onClick={() => handleAnswerSelect(optionIndex)}
-                            className="w-full p-3 text-left rounded-lg border-2 border-yellow-300 bg-yellow-100 text-yellow-800 hover:bg-yellow-200 transition-colors"
-                          >
-                            <span className="font-medium">{String.fromCharCode(65 + optionIndex)}: {option}</span>
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              )}
-            </div>
-          </>
-        )}
-
-        {/* Options - Only for Questions */}
-        {currentItem.type === "question" && showOptions && (
-          <div className="mb-6">
-            <div className="space-y-3">
-              {currentItem.options.map((option, index) => 
-                visibleOptions.includes(index) ? (
-                  <button
-                    key={index}
-                    onClick={() => handleAnswerSelect(index)}
-                    disabled={showResult}
-                    style={{ 
-                      animationDelay: `${index * 200}ms`,
-                      opacity: 0,
-                      animation: `fade-in 500ms ease-out ${index * 200}ms forwards`
-                    }}
-                    className={`w-full p-4 text-left rounded-lg border-2 transition-all duration-200 ${
-                      selectedAnswer === index
-                        ? showResult
-                          ? index === currentItem.correctAnswer
-                            ? "border-green-500 bg-green-50 text-green-800"
-                            : "border-red-500 bg-red-50 text-red-800"
-                          : "border-primary bg-primary/10 text-primary"
-                        : showResult && index === currentItem.correctAnswer
-                          ? "border-green-500 bg-green-50 text-green-800"
-                          : "border-border bg-card text-card-foreground hover:border-primary/50"
-                    }`}
-                  >
-                    <div className="flex items-start gap-3">
-                      <div
-                        className={`w-6 h-6 rounded-full border-2 flex items-center justify-center text-xs font-bold mt-1 flex-shrink-0 ${
-                          selectedAnswer === index
-                            ? showResult
-                              ? index === currentItem.correctAnswer
-                                ? "border-green-500 bg-green-500 text-white"
-                                : "border-red-500 bg-red-500 text-white"
-                              : "border-primary bg-primary text-primary-foreground"
-                            : showResult && index === currentItem.correctAnswer
-                              ? "border-green-500 bg-green-500 text-white"
-                              : "border-muted-foreground"
-                        }`}
-                      >
-                        {String.fromCharCode(65 + index)}
-                      </div>
-                      <span className="font-medium leading-relaxed">{option}</span>
-                      {showResult && index === currentItem.correctAnswer && (
-                        <CheckCircle className="w-5 h-5 text-green-500 ml-auto mt-1 flex-shrink-0" />
-                      )}
-                    </div>
-                  </button>
-                ) : null
-              )}
-            </div>
-          </div>
-        )}
-
-        {/* Result and Explanation */}
-        {showResult && currentItem.type === "question" && (
-          <Card className="p-4 mb-6">
-            <div className="flex items-center gap-2 mb-3">
-              {isCorrect ? (
-                <>
-                  <CheckCircle className="w-5 h-5 text-green-500" />
-                  <span className="font-semibold text-green-700">좋은 답변입니다! +10점</span>
-                </>
-              ) : (
-                <>
-                  <div className="w-5 h-5 rounded-full bg-red-500 flex items-center justify-center">
-                    <span className="text-white text-xs">✕</span>
-                  </div>
-                  <span className="font-semibold text-red-700">다시 생각해보세요</span>
-                </>
-              )}
-            </div>
-
-            <div className="mt-3 p-3 bg-muted rounded-lg">
-              <p className="text-sm text-muted-foreground leading-relaxed">{currentItem.explanation}</p>
-            </div>
-          </Card>
-        )}
-        
-        {/* Conversation Completed */}
-        {showResult && currentItem.type === "conversation" && (
-          <Card className="p-4 mb-6">
-            <div className="flex items-center gap-2 mb-3">
-              <CheckCircle className="w-5 h-5 text-green-500" />
-              <span className="font-semibold text-green-700">이야기를 완료했습니다!</span>
-            </div>
-            <div className="mt-3 p-3 bg-muted rounded-lg">
-              <p className="text-sm text-muted-foreground leading-relaxed">
-                로마서의 깊은 의미를 두 친구의 대화를 통해 경험해 보았습니다.
-              </p>
-            </div>
-          </Card>
+          <ConversationComponent
+            conversation={currentItem as Conversation}
+            onChoiceSelect={handleConversationChoice}
+            showResult={showResult}
+            conversationChoice={conversationChoice}
+            userProgress={userProgress}
+          />
         )}
       </div>
 
