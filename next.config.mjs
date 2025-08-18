@@ -4,6 +4,8 @@ const nextConfig = {
   trailingSlash: true,
   skipTrailingSlashRedirect: true,
   distDir: 'out',
+  basePath: '/ecu-preview',
+  assetPrefix: '/ecu-preview',
   eslint: {
     ignoreDuringBuilds: true,
   },
