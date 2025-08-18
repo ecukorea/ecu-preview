@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useEffect, useState } from "react"
 import { Card } from "@/components/ui/card"
 import { CheckCircle } from "lucide-react"
 import { Question, UserProgress } from "@/lib/types"
@@ -13,12 +13,12 @@ interface QuestionComponentProps {
   userProgress: UserProgress
 }
 
-export function QuestionComponent({ 
-  question, 
-  onAnswerSelect, 
-  showResult, 
+export function QuestionComponent({
+  question,
+  onAnswerSelect,
+  showResult,
   selectedAnswer,
-  userProgress 
+  userProgress,
 }: QuestionComponentProps) {
   const [showScenario, setShowScenario] = useState(false)
   const [showFriendQuestion, setShowFriendQuestion] = useState(false)
@@ -33,15 +33,15 @@ export function QuestionComponent({
     setShowFriendQuestion(false)
     setShowOptions(false)
     setVisibleOptions([])
-    
+
     // Progressive display for question elements
     setTimeout(() => setShowScenario(true), 300)
     setTimeout(() => setShowFriendQuestion(true), 800)
-    
+
     // Show all options at once with CSS animation delays
     setTimeout(() => {
       setShowOptions(true)
-      setVisibleOptions(Array.from({length: question.options.length}, (_, i) => i))
+      setVisibleOptions(Array.from({ length: question.options.length }, (_, i) => i))
     }, 1300)
   }, [question.id])
 
@@ -51,7 +51,9 @@ export function QuestionComponent({
       {showScenario && (
         <div className="mb-4 animate-in fade-in duration-500 slide-in-from-bottom-2">
           <Card className="p-4 bg-muted">
-            <p className="text-base text-muted-foreground leading-relaxed font-bold">{question.scenario}</p>
+            <p className="text-base text-muted-foreground leading-relaxed font-bold">
+              {question.scenario}
+            </p>
           </Card>
         </div>
       )}
@@ -64,7 +66,9 @@ export function QuestionComponent({
             <div className="flex-1">
               <Card className="p-4 bg-blue-50 border-blue-200 relative">
                 <div className="absolute -left-2 top-4 w-0 h-0 border-t-8 border-b-8 border-r-8 border-transparent border-r-blue-50"></div>
-                <p className="text-blue-900 font-medium leading-relaxed">{question.friendQuestion}</p>
+                <p className="text-blue-900 font-medium leading-relaxed">
+                  {question.friendQuestion}
+                </p>
               </Card>
             </div>
           </div>
@@ -75,16 +79,16 @@ export function QuestionComponent({
       {showOptions && (
         <div className="mb-6">
           <div className="space-y-3">
-            {question.options.map((option, index) => 
+            {question.options.map((option, index) =>
               visibleOptions.includes(index) ? (
                 <button
                   key={index}
                   onClick={() => onAnswerSelect(index)}
                   disabled={showResult}
-                  style={{ 
+                  style={{
                     animationDelay: `${index * 200}ms`,
                     opacity: 0,
-                    animation: `fade-in 500ms ease-out ${index * 200}ms forwards`
+                    animation: `fade-in 500ms ease-out ${index * 200}ms forwards`,
                   }}
                   className={`w-full p-4 text-left rounded-lg border-2 transition-all duration-200 ${
                     selectedAnswer === index

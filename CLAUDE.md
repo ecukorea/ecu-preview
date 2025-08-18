@@ -9,13 +9,14 @@ This is a Next.js 15 React application called "ECU 맛보기" (ECU Preview) - an
 ## Development Commands
 
 - `pnpm dev` - Start development server
-- `pnpm build` - Build production application  
+- `pnpm build` - Build production application
 - `pnpm start` - Start production server
 - `pnpm lint` - Run ESLint (note: errors ignored during builds via next.config.mjs)
 
 ## Architecture & Tech Stack
 
 ### Core Technologies
+
 - **Next.js 15** with App Router (`app/` directory structure)
 - **React 19** with TypeScript
 - **Tailwind CSS 4** with custom design system
@@ -24,6 +25,7 @@ This is a Next.js 15 React application called "ECU 맛보기" (ECU Preview) - an
 - **pnpm** for package management
 
 ### Project Structure
+
 ```
 app/                    # Next.js App Router
 ├── layout.tsx         # Root layout with DM Sans font
@@ -42,12 +44,14 @@ public/                # Static assets
 ```
 
 ### Design System
+
 - **Color Scheme**: Custom blue-harmonized color palette matching company branding
 - **Typography**: DM Sans font family (400, 500, 600, 700 weights)
 - **Theming**: Light/dark mode support via next-themes
 - **Components**: Comprehensive shadcn/ui component set including forms, navigation, data display, and overlays
 
 ### Application Features
+
 - **Interactive Quiz System**: Scenario-based Christian learning questions
 - **Gamification**: Score tracking, streak counters, badge system
 - **Progress Tracking**: Visual progress indicators and completion states
@@ -57,15 +61,18 @@ public/                # Static assets
 ## Key Configuration
 
 ### TypeScript
+
 - Strict mode enabled
 - Path aliases: `@/*` maps to project root
 - ES6 target with bundler module resolution
 
 ### Next.js Configuration
+
 - ESLint and TypeScript errors ignored during builds
 - Unoptimized images for static export compatibility
 
 ### Styling
+
 - Tailwind CSS 4 with PostCSS integration
 - Custom CSS variables for consistent theming
 - Extensive design token system in globals.css
@@ -74,17 +81,20 @@ public/                # Static assets
 ## Development Notes
 
 ### Component Patterns
+
 - All UI components follow shadcn/ui patterns with Radix UI primitives
 - State management via React useState (no external state library)
 - Event handlers use consistent naming (handle[Action])
 - Conditional styling with clsx/tailwind-merge utility
 
 ### Data Structure
+
 - Questions array with scenario, options, correct answers, and explanations
 - User progress tracking with score, streak, badges, and level
 - Badge system with achievement requirements and notifications
 
 ### Styling Conventions
+
 - Use `cn()` utility from lib/utils.ts for conditional classes
 - Follow shadcn/ui component API patterns
 - Leverage CSS variables for consistent theming
@@ -93,6 +103,7 @@ public/                # Static assets
 ## Adding New Features
 
 When extending the application:
+
 1. Follow existing shadcn/ui component patterns
 2. Use the established color design system
 3. Maintain Korean language consistency

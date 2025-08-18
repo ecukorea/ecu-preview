@@ -1,9 +1,9 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useEffect, useState } from "react"
 import { Card } from "@/components/ui/card"
 import { CheckCircle } from "lucide-react"
-import { Conversation, ConversationMessage, UserProgress } from "@/lib/types"
+import { Conversation, UserProgress } from "@/lib/types"
 
 interface ConversationComponentProps {
   conversation: Conversation
@@ -13,12 +13,12 @@ interface ConversationComponentProps {
   userProgress: UserProgress
 }
 
-export function ConversationComponent({ 
-  conversation, 
-  onChoiceSelect, 
-  showResult, 
+export function ConversationComponent({
+  conversation,
+  onChoiceSelect,
+  showResult,
   conversationChoice,
-  userProgress 
+  userProgress,
 }: ConversationComponentProps) {
   const [renderedMessages, setRenderedMessages] = useState<React.ReactNode[]>([])
   const [showChoicePrompt, setShowChoicePrompt] = useState(false)
@@ -26,51 +26,55 @@ export function ConversationComponent({
   useEffect(() => {
     // Only reset if conversation changes and no choice has been made yet
     if (conversationChoice !== null) return
-    
+
     setRenderedMessages([])
     setShowChoicePrompt(false)
-    
+
     const initialMessages = conversation.steps[0].messages
     let messageIndex = 0
-    let timeouts: NodeJS.Timeout[] = []
-    
+    const timeouts: NodeJS.Timeout[] = []
+
     const addNextMessage = () => {
       if (messageIndex < initialMessages.length) {
         const message = initialMessages[messageIndex]
         const messageComponent = (
-          <div 
+          <div
             key={`${conversation.id}-initial-${messageIndex}-${Date.now()}`}
             className={`flex items-start gap-4 ${message.speaker === "person2" ? "flex-row-reverse" : ""} animate-in fade-in duration-500 slide-in-from-top-2`}
           >
             <div className="text-3xl">{message.emoji}</div>
             <div className="flex-1 max-w-[80%]">
-              <div className="text-sm font-medium text-muted-foreground mb-1">
-                {message.name}
-              </div>
-              <div className={`p-4 relative rounded-lg border ${
-                message.speaker === "person1" 
-                  ? "bg-blue-50 border-blue-200" 
-                  : "bg-green-50 border-green-200"
-              }`}>
-                <div className={`absolute ${
+              <div className="text-sm font-medium text-muted-foreground mb-1">{message.name}</div>
+              <div
+                className={`p-4 relative rounded-lg border ${
                   message.speaker === "person1"
-                    ? "-left-2 border-r-blue-50"
-                    : "-right-2 border-l-green-50"
-                } top-4 w-0 h-0 border-t-8 border-b-8 ${
-                  message.speaker === "person1"
-                    ? "border-r-8 border-transparent"
-                    : "border-l-8 border-transparent"
-                }`}></div>
-                <p className={`font-medium leading-relaxed ${
-                  message.speaker === "person1" ? "text-blue-900" : "text-green-900"
-                }`}>
+                    ? "bg-blue-50 border-blue-200"
+                    : "bg-green-50 border-green-200"
+                }`}
+              >
+                <div
+                  className={`absolute ${
+                    message.speaker === "person1"
+                      ? "-left-2 border-r-blue-50"
+                      : "-right-2 border-l-green-50"
+                  } top-4 w-0 h-0 border-t-8 border-b-8 ${
+                    message.speaker === "person1"
+                      ? "border-r-8 border-transparent"
+                      : "border-l-8 border-transparent"
+                  }`}
+                ></div>
+                <p
+                  className={`font-medium leading-relaxed ${
+                    message.speaker === "person1" ? "text-blue-900" : "text-green-900"
+                  }`}
+                >
                   {message.message}
                 </p>
               </div>
             </div>
           </div>
         )
-        
+
         setRenderedMessages(prev => [...prev, messageComponent])
         messageIndex++
         const timeout = setTimeout(addNextMessage, 800) // 800ms delay between messages
@@ -83,11 +87,11 @@ export function ConversationComponent({
         }
       }
     }
-    
+
     // Start showing messages with initial delay
     const initialTimeout = setTimeout(addNextMessage, 500)
     timeouts.push(initialTimeout)
-    
+
     // Cleanup function to clear timeouts
     return () => {
       timeouts.forEach(timeout => clearTimeout(timeout))
@@ -96,15 +100,16 @@ export function ConversationComponent({
 
   const handleChoiceSelect = (answerIndex: number) => {
     setShowChoicePrompt(false)
-    
+
     // Add selected choice message
     const choiceComponent = (
-      <div key={`${conversation.id}-choice-selected-${Date.now()}`} className="flex items-start gap-4 animate-in fade-in duration-500 slide-in-from-top-2">
+      <div
+        key={`${conversation.id}-choice-selected-${Date.now()}`}
+        className="flex items-start gap-4 animate-in fade-in duration-500 slide-in-from-top-2"
+      >
         <div className="text-3xl">😊</div>
         <div className="flex-1 max-w-[80%]">
-          <div className="text-sm font-medium text-muted-foreground mb-1">
-            나의 선택
-          </div>
+          <div className="text-sm font-medium text-muted-foreground mb-1">나의 선택</div>
           <div className="p-4 relative rounded-lg border bg-purple-50 border-purple-200">
             <div className="absolute -left-2 top-4 w-0 h-0 border-t-8 border-b-8 border-r-8 border-transparent border-r-purple-50"></div>
             <p className="font-medium leading-relaxed text-purple-900">
@@ -114,50 +119,54 @@ export function ConversationComponent({
         </div>
       </div>
     )
-    
+
     setRenderedMessages(prev => [...prev, choiceComponent])
-    
+
     // Start progressive display of outcome messages
     const outcomeMessages = conversation.steps[0].choice!.outcomes[answerIndex]
     let outcomeIndex = 0
-    
+
     const addNextOutcome = () => {
       if (outcomeIndex < outcomeMessages.length) {
         const message = outcomeMessages[outcomeIndex]
         const outcomeComponent = (
-          <div 
+          <div
             key={`${conversation.id}-outcome-${outcomeIndex}-${Date.now()}`}
             className={`flex items-start gap-4 ${message.speaker === "person2" ? "flex-row-reverse" : ""} animate-in fade-in duration-500 slide-in-from-top-2`}
           >
             <div className="text-3xl">{message.emoji}</div>
             <div className="flex-1 max-w-[80%]">
-              <div className="text-sm font-medium text-muted-foreground mb-1">
-                {message.name}
-              </div>
-              <div className={`p-4 relative rounded-lg border ${
-                message.speaker === "person1" 
-                  ? "bg-blue-50 border-blue-200" 
-                  : "bg-green-50 border-green-200"
-              }`}>
-                <div className={`absolute ${
+              <div className="text-sm font-medium text-muted-foreground mb-1">{message.name}</div>
+              <div
+                className={`p-4 relative rounded-lg border ${
                   message.speaker === "person1"
-                    ? "-left-2 border-r-blue-50"
-                    : "-right-2 border-l-green-50"
-                } top-4 w-0 h-0 border-t-8 border-b-8 ${
-                  message.speaker === "person1"
-                    ? "border-r-8 border-transparent"
-                    : "border-l-8 border-transparent"
-                }`}></div>
-                <p className={`font-medium leading-relaxed ${
-                  message.speaker === "person1" ? "text-blue-900" : "text-green-900"
-                }`}>
+                    ? "bg-blue-50 border-blue-200"
+                    : "bg-green-50 border-green-200"
+                }`}
+              >
+                <div
+                  className={`absolute ${
+                    message.speaker === "person1"
+                      ? "-left-2 border-r-blue-50"
+                      : "-right-2 border-l-green-50"
+                  } top-4 w-0 h-0 border-t-8 border-b-8 ${
+                    message.speaker === "person1"
+                      ? "border-r-8 border-transparent"
+                      : "border-l-8 border-transparent"
+                  }`}
+                ></div>
+                <p
+                  className={`font-medium leading-relaxed ${
+                    message.speaker === "person1" ? "text-blue-900" : "text-green-900"
+                  }`}
+                >
                   {message.message}
                 </p>
               </div>
             </div>
           </div>
         )
-        
+
         setRenderedMessages(prev => [...prev, outcomeComponent])
         outcomeIndex++
         setTimeout(addNextOutcome, 1200) // 1.2 second delay between outcome messages
@@ -168,7 +177,7 @@ export function ConversationComponent({
         }, 800) // Brief delay before showing completion
       }
     }
-    
+
     // Start showing outcome messages after a brief delay
     setTimeout(addNextOutcome, 600)
   }
@@ -179,7 +188,9 @@ export function ConversationComponent({
       <div className="mb-4">
         <Card className="p-4 bg-muted">
           <h2 className="text-lg font-bold text-foreground mb-2">{conversation.title}</h2>
-          <p className="text-base text-muted-foreground leading-relaxed">{conversation.description}</p>
+          <p className="text-base text-muted-foreground leading-relaxed">
+            {conversation.description}
+          </p>
         </Card>
       </div>
 
@@ -190,9 +201,7 @@ export function ConversationComponent({
           <div className="flex items-start gap-4 animate-in fade-in duration-500 slide-in-from-top-2">
             <div className="text-3xl">🤔</div>
             <div className="flex-1 max-w-[80%]">
-              <div className="text-sm font-medium text-muted-foreground mb-1">
-                나의 선택
-              </div>
+              <div className="text-sm font-medium text-muted-foreground mb-1">나의 선택</div>
               <div className="p-4 relative rounded-lg border bg-yellow-50 border-yellow-200">
                 <div className="absolute -left-2 top-4 w-0 h-0 border-t-8 border-b-8 border-r-8 border-transparent border-r-yellow-50"></div>
                 <p className="font-medium leading-relaxed text-yellow-900 mb-3">
@@ -205,7 +214,9 @@ export function ConversationComponent({
                       onClick={() => handleChoiceSelect(optionIndex)}
                       className="w-full p-3 text-left rounded-lg border-2 border-yellow-300 bg-yellow-100 text-yellow-800 hover:bg-yellow-200 transition-colors"
                     >
-                      <span className="font-medium">{String.fromCharCode(65 + optionIndex)}: {option}</span>
+                      <span className="font-medium">
+                        {String.fromCharCode(65 + optionIndex)}: {option}
+                      </span>
                     </button>
                   ))}
                 </div>
