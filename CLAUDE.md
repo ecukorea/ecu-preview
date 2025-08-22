@@ -4,14 +4,18 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-This is a Next.js 15 React application called "ECU 맛보기" (ECU Preview) - an interactive Bible study application for Christianity learning. The app presents scenario-based questions with multiple choice answers, provides explanations, and includes a gamification system with badges and streaks.
+This is a Next.js 15 React application called "ECU 맛보기" (ECU Preview) - an interactive Bible study application for Christianity learning. The app features three distinct interaction types: scenario-based questions with multiple choice answers, branching conversations, and presentation-style slides with Lottie animations. It includes a comprehensive gamification system with badges and streaks.
 
 ## Development Commands
 
 - `pnpm dev` - Start development server
-- `pnpm build` - Build production application
+- `pnpm build` - Build production application (outputs to `out/` directory for static export)
 - `pnpm start` - Start production server
 - `pnpm lint` - Run ESLint (note: errors ignored during builds via next.config.mjs)
+- `pnpm lint:fix` - Run ESLint with automatic fixes
+- `pnpm format` - Format code with Prettier
+- `pnpm format:check` - Check code formatting with Prettier
+- `pnpm type-check` - Run TypeScript type checking without emitting files
 
 ## Architecture & Tech Stack
 
@@ -34,10 +38,22 @@ app/                    # Next.js App Router
 
 components/
 ├── ui/                # shadcn/ui components (40+ components)
+├── question-component.tsx # Interactive question display component
+├── conversation-component.tsx # Conversation-based learning component
+├── presentation-component.tsx # Lottie-enhanced presentation slides with advanced UI
 └── theme-provider.tsx # next-themes integration
 
+data/
+├── index.ts           # Main data export with auto-assigned IDs
+├── presentation-data.ts # Romans 8 theological presentation content
+├── quiz-data.ts       # Question-based interactions
+└── conversation-data.ts # Branching conversation interactions
+
 lib/
+├── types.ts           # TypeScript interfaces for all interaction types
 └── utils.ts           # Tailwind utility functions (cn helper)
+
+public/assets/lottie/  # Lottie animation files for character representations
 
 hooks/                 # Custom React hooks
 public/                # Static assets
@@ -52,8 +68,11 @@ public/                # Static assets
 
 ### Application Features
 
-- **Interactive Quiz System**: Scenario-based Christian learning questions
-- **Gamification**: Score tracking, streak counters, badge system
+- **Three Interaction Types**: Questions, branching conversations, and Lottie-animated presentations
+- **Advanced Presentation System**: Toss-inspired slide presentations with multiple Lottie character animations
+- **Interactive Learning**: Scenario-based Christian learning with Romans 8 deep theological content
+- **Gamification**: Score tracking, streak counters, achievement-based badge system
+- **Enhanced UI/UX**: Glass morphism effects, smooth transitions, keyboard navigation
 - **Progress Tracking**: Visual progress indicators and completion states
 - **Responsive Design**: Mobile-first approach with fixed header/footer
 - **Korean Language**: All content and UI text in Korean
@@ -68,8 +87,12 @@ public/                # Static assets
 
 ### Next.js Configuration
 
-- ESLint and TypeScript errors ignored during builds
-- Unoptimized images for static export compatibility
+- **Static Export**: Configured for GitHub Pages deployment with `output: 'export'`
+- **Base Path**: `/ecu-preview` for GitHub Pages subdirectory hosting
+- **Build Output**: Custom `distDir: 'out'` for static files
+- **ESLint and TypeScript**: Errors ignored during builds for deployment flexibility
+- **Images**: Unoptimized for static export compatibility
+- **Trailing Slash**: Enabled for static hosting compatibility
 
 ### Styling
 
@@ -89,9 +112,11 @@ public/                # Static assets
 
 ### Data Structure
 
-- Questions array with scenario, options, correct answers, and explanations
-- User progress tracking with score, streak, badges, and level
-- Badge system with achievement requirements and notifications
+- **InteractionItem**: Union type supporting both Question and Conversation types
+- **Question Interface**: scenario, friendQuestion, options, correctAnswer, explanation, category, emoji
+- **Conversation Interface**: Multi-step dialogue with branching choices and outcomes
+- **UserProgress**: score, streak, totalQuestions, correctAnswers, badges, level tracking
+- **Badge System**: Achievement-based rewards with specific requirements (First Steps, Bible Scholar, Faithful Learner, Devoted Student)
 
 ### Styling Conventions
 
@@ -110,3 +135,22 @@ When extending the application:
 4. Consider mobile-first responsive design
 5. Update badge/achievement system if adding gamification features
 6. Use existing TypeScript interfaces for type safety
+
+## Key Dependencies
+
+### UI & Styling
+- **@radix-ui/react-\***: Comprehensive primitive component library (40+ components)
+- **class-variance-authority**: Type-safe variant API for component styling
+- **tailwind-merge**: Conflict resolution for Tailwind classes
+- **tailwindcss-animate + tw-animate-css**: Enhanced animation support
+
+### Forms & Validation
+- **react-hook-form**: Form state management and validation
+- **@hookform/resolvers**: Validation resolvers for react-hook-form
+- **zod**: TypeScript-first schema validation
+
+### Other Notable Libraries
+- **next-themes**: Theme switching functionality (though not actively used in current implementation)
+- **lucide-react**: Consistent icon library
+- **sonner**: Toast notifications
+- **vaul**: Drawer component library

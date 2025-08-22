@@ -1,5 +1,4 @@
 export interface Question {
-  id: number
   scenario: string
   friendQuestion: string
   options: string[]
@@ -27,7 +26,6 @@ export interface ConversationStep {
 }
 
 export interface Conversation {
-  id: number
   title: string
   description: string
   steps: ConversationStep[]
@@ -35,7 +33,32 @@ export interface Conversation {
   type: "conversation"
 }
 
-export type InteractionItem = Question | Conversation
+export interface PresentationSlide {
+  content: string
+  speaker?: {
+    name: string
+    avatar: string
+    emoji?: string
+  }
+  lottie?: {
+    src: string[] // paths to lottie files
+    width?: number
+    height?: number
+  }
+  duration?: number // milliseconds to auto-advance (optional)
+  type: "text" | "question" | "image" | "quote" | "lottie"
+}
+
+export interface Presentation {
+  title: string
+  description: string
+  chapter: string // e.g., "01. 구원의 확신"
+  slides: PresentationSlide[]
+  category: string
+  type: "presentation"
+}
+
+export type InteractionItem = (Question | Conversation | Presentation) & { id: number }
 
 export interface UserProgress {
   score: number
