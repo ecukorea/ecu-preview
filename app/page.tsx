@@ -126,12 +126,12 @@ export default function ChristianityLearningApp() {
       <div className="sticky top-0 z-10 bg-card border-b border-border p-4">
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-2">
-            <h1 className="text-lg font-bold text-foreground">ECU 맛보기</h1>
+            <h1 className="text-lg sm:text-xl font-bold text-foreground">ECU 맛보기</h1>
           </div>
           <div className="flex items-center gap-3">
             <div className="flex items-center gap-1">
               <Star className="w-4 h-4 text-secondary" />
-              <span className="text-sm font-semibold">{userProgress.score}</span>
+              <span className="text-sm sm:text-base font-semibold">{userProgress.score}</span>
             </div>
           </div>
         </div>

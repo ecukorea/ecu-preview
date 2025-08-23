@@ -44,10 +44,10 @@ components/
 └── theme-provider.tsx # next-themes integration
 
 data/
-├── index.ts           # Main data export with auto-assigned IDs
-├── presentation-data.ts # Romans 8 theological presentation content
-├── quiz-data.ts       # Question-based interactions
-└── conversation-data.ts # Branching conversation interactions
+├── index.ts           # Main data export with auto-assigned IDs (currently only presentation data active)
+├── presentation.ts    # Romans 8 theological presentation content
+├── quiz.ts           # Question-based interactions (commented out in index.ts)
+└── conversation.ts   # Branching conversation interactions (commented out in index.ts)
 
 lib/
 ├── types.ts           # TypeScript interfaces for all interaction types
@@ -88,7 +88,7 @@ public/                # Static assets
 ### Next.js Configuration
 
 - **Static Export**: Configured for GitHub Pages deployment with `output: 'export'`
-- **Base Path**: `/ecu-preview` for GitHub Pages subdirectory hosting
+- **Base Path**: `/ecu-preview` for GitHub Pages subdirectory hosting (currently commented out in next.config.mjs)
 - **Build Output**: Custom `distDir: 'out'` for static files
 - **ESLint and TypeScript**: Errors ignored during builds for deployment flexibility
 - **Images**: Unoptimized for static export compatibility
@@ -112,9 +112,10 @@ public/                # Static assets
 
 ### Data Structure
 
-- **InteractionItem**: Union type supporting both Question and Conversation types
+- **InteractionItem**: Union type supporting Question, Conversation, and Presentation types
 - **Question Interface**: scenario, friendQuestion, options, correctAnswer, explanation, category, emoji
 - **Conversation Interface**: Multi-step dialogue with branching choices and outcomes
+- **Presentation Interface**: title, description, chapter, slides with Lottie animation support
 - **UserProgress**: score, streak, totalQuestions, correctAnswers, badges, level tracking
 - **Badge System**: Achievement-based rewards with specific requirements (First Steps, Bible Scholar, Faithful Learner, Devoted Student)
 
@@ -148,6 +149,9 @@ When extending the application:
 - **react-hook-form**: Form state management and validation
 - **@hookform/resolvers**: Validation resolvers for react-hook-form
 - **zod**: TypeScript-first schema validation
+
+### Animation & Media
+- **@lottiefiles/dotlottie-react**: Lottie animation rendering for character presentations
 
 ### Other Notable Libraries
 - **next-themes**: Theme switching functionality (though not actively used in current implementation)

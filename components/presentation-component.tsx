@@ -3,8 +3,8 @@
 import { useEffect, useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
-import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
-import { ChevronLeft, ChevronRight, Play, Pause } from "lucide-react"
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
+import { ChevronLeft, ChevronRight, Pause, Play } from "lucide-react"
 import { DotLottieReact } from "@lottiefiles/dotlottie-react"
 import { Presentation, UserProgress } from "@/lib/types"
 
@@ -12,6 +12,46 @@ interface PresentationComponentProps {
   presentation: Presentation
   onComplete: () => void
   userProgress: UserProgress
+}
+
+// Helper function to parse markdown-style formatting
+function parseFormattedText(text: string) {
+  // Split by markdown patterns while preserving the markers
+  const parts = text.split(/(`[^`]+`|\*\*[^*]+\*\*|\*[^*]+\*|__[^_]+__)/g)
+  
+  return parts.map((part, index) => {
+    if (part.startsWith('`') && part.endsWith('`')) {
+      // Code/emphasis with backticks
+      return (
+        <code key={index} className="bg-primary/10 px-1.5 py-0.5 rounded text-primary font-semibold">
+          {part.slice(1, -1)}
+        </code>
+      )
+    } else if (part.startsWith('**') && part.endsWith('**')) {
+      // Bold text
+      return (
+        <strong key={index} className="font-bold text-primary">
+          {part.slice(2, -2)}
+        </strong>
+      )
+    } else if (part.startsWith('*') && part.endsWith('*')) {
+      // Italic text
+      return (
+        <em key={index} className="italic text-secondary">
+          {part.slice(1, -1)}
+        </em>
+      )
+    } else if (part.startsWith('__') && part.endsWith('__')) {
+      // Underlined text
+      return (
+        <span key={index} className="underline decoration-primary decoration-2 underline-offset-2">
+          {part.slice(2, -2)}
+        </span>
+      )
+    }
+    // Regular text
+    return part
+  })
 }
 
 export function PresentationComponent({
@@ -78,24 +118,24 @@ export function PresentationComponent({
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
       switch (event.code) {
-        case 'ArrowRight':
-        case 'Space':
+        case "ArrowRight":
+        case "Space":
           event.preventDefault()
           handleNext()
           break
-        case 'ArrowLeft':
+        case "ArrowLeft":
           event.preventDefault()
           handlePrevious()
           break
-        case 'KeyP':
+        case "KeyP":
           event.preventDefault()
           togglePlay()
           break
       }
     }
 
-    window.addEventListener('keydown', handleKeyDown)
-    return () => window.removeEventListener('keydown', handleKeyDown)
+    window.addEventListener("keydown", handleKeyDown)
+    return () => window.removeEventListener("keydown", handleKeyDown)
   }, [currentSlideIndex, isPlaying])
 
   // Auto-advance slides when playing
@@ -115,36 +155,36 @@ export function PresentationComponent({
   }, [currentSlideIndex, isPlaying, currentSlide.duration, isLastSlide])
 
   return (
-    <div className="min-h-[calc(100vh-200px)] flex flex-col bg-gradient-to-br from-background to-muted/20">
-      {/* Chapter Header */}
-      <div className="mb-8 text-center px-6">
-        <div className="inline-flex items-center gap-2 px-4 py-2 bg-primary/10 rounded-full mb-3">
-          <div className="w-2 h-2 bg-primary rounded-full animate-pulse"></div>
-          <h2 className="text-sm font-medium text-primary">{presentation.title}</h2>
-        </div>
-        <h1 className="text-2xl font-bold text-foreground bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
+    <div className="min-h-screen flex flex-col bg-gradient-to-br from-background to-muted/20 relative">
+      {/* Chapter Title - Now at top without fixed positioning */}
+      <div className="pt-4 pb-6 text-center px-6">
+        <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-foreground bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
           {presentation.chapter}
         </h1>
       </div>
 
-      {/* Main Slide Content */}
-      <div className="flex-1 flex items-center justify-center px-4">
-        <Card 
-          className="w-full max-w-3xl relative overflow-hidden cursor-pointer group transition-all duration-300 hover:scale-[1.02] hover:shadow-xl bg-gradient-to-br from-card to-card/50 backdrop-blur-sm border border-border/50"
-          onClick={handleSlideClick}
-        >
+      {/* Main Slide Content - Expanded */}
+      <div className="flex-1 flex items-center justify-center px-4 pb-16">
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Card
+              className="w-full max-w-4xl relative overflow-hidden cursor-pointer group transition-all duration-300 hover:scale-[1.02] hover:shadow-xl bg-white border border-border/50 shadow-2xl"
+              onClick={handleSlideClick}
+            >
           {/* Subtle background pattern */}
           <div className="absolute inset-0 opacity-5">
             <div className="absolute inset-0 bg-grid-pattern"></div>
           </div>
-          
-          <div className="relative p-4 sm:p-8 md:p-12 h-[500px] sm:h-[450px] flex flex-col items-center justify-center text-center overflow-y-auto overflow-x-hidden">
+
+          <div className="relative p-6 sm:p-10 md:p-16 min-h-[600px] sm:min-h-[650px] md:min-h-[700px] flex flex-col items-center justify-center text-center overflow-y-auto overflow-x-hidden">
             {/* Speaker Name Only */}
             {currentSlide.speaker && (
               <div className="mb-8">
                 <div className="inline-flex items-center gap-2 px-3 py-1 bg-secondary/20 rounded-full">
                   <span className="text-lg">{currentSlide.speaker.emoji}</span>
-                  <p className="text-lg font-semibold text-secondary">{currentSlide.speaker.name}</p>
+                  <p className="text-lg sm:text-xl font-semibold text-secondary">
+                    {currentSlide.speaker.name}
+                  </p>
                 </div>
               </div>
             )}
@@ -152,8 +192,8 @@ export function PresentationComponent({
             {/* Slide Content */}
             <div
               className={`transition-all duration-700 ease-out ${
-                isVisible 
-                  ? "opacity-100 translate-y-0 scale-100" 
+                isVisible
+                  ? "opacity-100 translate-y-0 scale-100"
                   : "opacity-0 translate-y-8 scale-95"
               }`}
             >
@@ -161,12 +201,17 @@ export function PresentationComponent({
               {currentSlide.lottie && (
                 <div className="mb-4 sm:mb-6 md:mb-8 flex justify-center">
                   <div className="flex gap-2 sm:gap-4 md:gap-6 flex-wrap justify-center">
-                    {currentSlide.lottie.src.map((src, index) => {
-                      // Character names for the first slide (all characters introduction)
-                      const characterNames = ["민지", "준호", "수연", "태민"];
-                      const characterEmojis = ["😊", "🤔", "🙏", "💪"];
-                      const isMultipleCharacters = currentSlide.lottie.src.length > 1;
-                      
+                    {currentSlide.lottie?.src.map((src, index) => {
+                      // Character mapping for reliable name-to-lottie association
+                      const characterMap = {
+                        "/assets/lottie/male-02.lottie": { name: "준수", emoji: "🤔" },
+                        "/assets/lottie/female-01.lottie": { name: "민지", emoji: "😊" },
+                        "/assets/lottie/female-02.lottie": { name: "수연", emoji: "🙏" },
+                        "/assets/lottie/male-04.lottie": { name: "태민", emoji: "💪" },
+                      }
+                      const character = characterMap[src as keyof typeof characterMap] || { name: "Unknown", emoji: "❓" }
+                      const isMultipleCharacters = currentSlide.lottie?.src.length > 1
+
                       return (
                         <div key={index} className="relative flex flex-col items-center">
                           <div className="relative">
@@ -176,21 +221,29 @@ export function PresentationComponent({
                               loop
                               autoplay
                               style={{
-                                width: isMultipleCharacters ? (currentSlide.lottie.width || 100) : (currentSlide.lottie.width || 180),
-                                height: isMultipleCharacters ? (currentSlide.lottie.height || 100) : (currentSlide.lottie.height || 180),
+                                width: isMultipleCharacters
+                                  ? currentSlide.lottie?.width || 100
+                                  : currentSlide.lottie?.width || 180,
+                                height: isMultipleCharacters
+                                  ? currentSlide.lottie?.height || 100
+                                  : currentSlide.lottie?.height || 180,
                               }}
                             />
                           </div>
                           {isMultipleCharacters && (
                             <div className="mt-1 sm:mt-2 text-center">
                               <div className="inline-flex items-center gap-1 px-2 py-0.5 bg-primary/10 rounded-full">
-                                <span className="text-xs sm:text-sm">{characterEmojis[index]}</span>
-                                <span className="text-xs sm:text-sm font-medium text-primary">{characterNames[index]}</span>
+                                <span className="text-sm sm:text-base">
+                                  {character.emoji}
+                                </span>
+                                <span className="text-sm sm:text-base font-medium text-primary">
+                                  {character.name}
+                                </span>
                               </div>
                             </div>
                           )}
                         </div>
-                      );
+                      )
                     })}
                   </div>
                 </div>
@@ -198,110 +251,146 @@ export function PresentationComponent({
 
               {currentSlide.type === "question" ? (
                 <h3 className="text-lg sm:text-xl md:text-2xl font-bold leading-relaxed text-foreground mb-4">
-                  {currentSlide.content}
+                  {currentSlide.content.split("\n").map((line, index) => (
+                    <span key={index}>
+                      {parseFormattedText(line)}
+                      {index < currentSlide.content.split("\n").length - 1 && <br />}
+                    </span>
+                  ))}
                 </h3>
               ) : currentSlide.type === "quote" ? (
                 <div className="relative">
-                  <div className="absolute -left-2 sm:-left-4 -top-2 sm:-top-4 text-4xl sm:text-6xl text-primary/20 font-serif">"</div>
-                  <blockquote className="text-sm sm:text-lg md:text-xl italic leading-relaxed text-foreground font-medium px-2 sm:px-6 py-3 sm:py-4 bg-primary/5 rounded-lg border-l-4 border-primary w-full max-w-full">
-                    {currentSlide.content}
+                  <div className="absolute -left-2 sm:-left-4 -top-2 sm:-top-4 text-4xl sm:text-6xl text-primary/20 font-serif">
+                    "
+                  </div>
+                  <blockquote className="text-base sm:text-lg md:text-xl italic leading-relaxed text-foreground font-medium px-2 sm:px-6 py-3 sm:py-4 bg-primary/5 rounded-lg border-l-4 border-primary w-full max-w-full">
+                    {currentSlide.content.split("\n").map((line, index) => (
+                      <span key={index}>
+                        {parseFormattedText(line)}
+                        {index < currentSlide.content.split("\n").length - 1 && <br />}
+                      </span>
+                    ))}
                   </blockquote>
-                  <div className="absolute -right-2 sm:-right-4 -bottom-2 sm:-bottom-4 text-4xl sm:text-6xl text-primary/20 font-serif">"</div>
+                  <div className="absolute -right-2 sm:-right-4 -bottom-2 sm:-bottom-4 text-4xl sm:text-6xl text-primary/20 font-serif">
+                    "
+                  </div>
                 </div>
               ) : currentSlide.type === "lottie" ? (
                 <div className="text-center space-y-2 sm:space-y-4">
-                  <h3 className="text-lg sm:text-xl md:text-2xl font-bold leading-relaxed text-foreground">
-                    {currentSlide.content}
-                  </h3>
+                  <p className="text-base sm:text-lg md:text-xl leading-relaxed text-foreground font-medium">
+                    {currentSlide.content.split("\n").map((line, index) => (
+                      <span key={index}>
+                        {parseFormattedText(line)}
+                        {index < currentSlide.content.split("\n").length - 1 && <br />}
+                      </span>
+                    ))}
+                  </p>
                 </div>
               ) : (
-                <p className="text-sm sm:text-lg md:text-xl leading-relaxed text-foreground font-medium max-w-full px-2">
-                  {currentSlide.content}
+                <p className="text-base sm:text-lg md:text-xl leading-relaxed text-foreground font-medium max-w-full px-2">
+                  {currentSlide.content.split("\n").map((line, index) => (
+                    <span key={index}>
+                      {parseFormattedText(line)}
+                      {index < currentSlide.content.split("\n").length - 1 && <br />}
+                    </span>
+                  ))}
                 </p>
               )}
             </div>
           </div>
-          
+
           {/* Hover indicator */}
           <div className="absolute bottom-4 right-4 opacity-0 group-hover:opacity-60 transition-opacity">
-            <div className="flex items-center gap-1 text-xs text-muted-foreground">
+            <div className="flex items-center gap-1 text-sm text-muted-foreground">
               <span>클릭</span>
               <ChevronRight className="w-3 h-3" />
             </div>
           </div>
-        </Card>
+            </Card>
+          </TooltipTrigger>
+          <TooltipContent>
+            <p>클릭하여 다음 슬라이드로 이동</p>
+          </TooltipContent>
+        </Tooltip>
       </div>
 
-      {/* Navigation Controls */}
-      <div className="mt-8 px-6">
+      {/* Fixed Bottom Controls */}
+      <div className="fixed bottom-0 left-0 right-0 z-20 bg-background/90 backdrop-blur-sm border-t border-border/50">
         {/* Progress Indicator */}
-        <div className="flex justify-center mb-6">
-          <div className="w-48 h-2 bg-muted/30 rounded-full overflow-hidden bg-card/50 backdrop-blur-sm border border-border/30">
-            <div 
-              className="h-full bg-primary rounded-full transition-all duration-300"
-              style={{
-                width: `${((currentSlideIndex + (isPlaying && currentSlide.duration ? Math.min(100, ((Date.now() - slideStartTime) / currentSlide.duration) * 100) / 100 : 0)) / presentation.slides.length) * 100}%`
-              }}
-            />
-          </div>
-        </div>
-
-        {/* Control Buttons */}
-        <div className="flex items-center justify-center space-x-3">
-          <Button
-            variant="outline"
-            size="icon"
-            onClick={handlePrevious}
-            disabled={isFirstSlide}
-            className="h-10 w-10 rounded-full bg-card/50 backdrop-blur-sm border-border/30 hover:bg-primary/10 hover:border-primary/30 disabled:opacity-30 transition-all"
-          >
-            <ChevronLeft className="h-4 w-4" />
-          </Button>
-
-          <Button
-            variant={isPlaying ? "default" : "outline"}
-            size="icon"
-            onClick={togglePlay}
-            className="h-12 w-12 rounded-full bg-card/50 backdrop-blur-sm border-border/30 hover:bg-primary hover:border-primary transition-all"
-          >
-            {isPlaying ? <Pause className="h-5 w-5" /> : <Play className="h-5 w-5" />}
-          </Button>
-
-          <Button
-            variant="outline"
-            size="icon"
-            onClick={handleNext}
-            className="h-10 w-10 rounded-full bg-card/50 backdrop-blur-sm border-border/30 hover:bg-primary/10 hover:border-primary/30 transition-all"
-          >
-            <ChevronRight className="h-4 w-4" />
-          </Button>
-        </div>
-
-        {/* Slide Counter and Hints */}
-        <div className="text-center mt-6 space-y-3">
-          <div className="inline-flex items-center gap-2 px-3 py-1 bg-muted/30 rounded-full">
-            <span className="text-sm font-medium text-muted-foreground">
-              {currentSlideIndex + 1} / {presentation.slides.length}
-            </span>
-          </div>
-          <div className="text-xs text-muted-foreground/60 space-y-1">
-            <div className="flex items-center justify-center gap-2">
-              <div className="flex items-center gap-1">
-                <div className="w-4 h-4 bg-muted/40 rounded border flex items-center justify-center">
-                  <span className="text-[8px]">📱</span>
-                </div>
-                <span>클릭</span>
-              </div>
-              <span>또는</span>
-              <div className="flex items-center gap-1">
-                <div className="px-1 py-0.5 bg-muted/40 rounded text-[8px]">SPACE</div>
-                <span>다음</span>
-              </div>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <div className="w-full h-1 bg-muted/30 cursor-pointer">
+              <div
+                className="h-full bg-primary transition-all duration-300 ease-out"
+                style={{
+                  width: `${((currentSlideIndex + 1) / presentation.slides.length) * 100}%`,
+                }}
+              />
             </div>
-            <div className="flex items-center justify-center gap-1">
-              <div className="px-1 py-0.5 bg-muted/40 rounded text-[8px]">P</div>
-              <span>자동재생 토글</span>
-            </div>
+          </TooltipTrigger>
+          <TooltipContent>
+            <p>진행률: {Math.round(((currentSlideIndex + 1) / presentation.slides.length) * 100)}%</p>
+          </TooltipContent>
+        </Tooltip>
+
+        {/* Controls */}
+        <div className="flex items-center justify-between px-4 py-2">
+          {/* Left: Title */}
+          <div className="flex items-center gap-2">
+            <div className="w-2 h-2 bg-primary rounded-full animate-pulse"></div>
+            <h2 className="text-sm font-medium text-primary">{presentation.title}</h2>
+          </div>
+
+          {/* Center: Navigation Controls */}
+          <div className="flex items-center space-x-2">
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={handlePrevious}
+                  disabled={isFirstSlide}
+                  className="h-8 w-8 rounded-full disabled:opacity-30"
+                >
+                  <ChevronLeft className="h-4 w-4" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>이전 슬라이드 (←)</p>
+              </TooltipContent>
+            </Tooltip>
+
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant={isPlaying ? "default" : "outline"}
+                  size="sm"
+                  onClick={togglePlay}
+                  className="h-8 w-8 rounded-full"
+                >
+                  {isPlaying ? <Pause className="h-3 w-3" /> : <Play className="h-3 w-3" />}
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>{isPlaying ? "일시정지" : "자동재생"} (P)</p>
+              </TooltipContent>
+            </Tooltip>
+
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button variant="ghost" size="sm" onClick={handleNext} className="h-8 w-8 rounded-full">
+                  <ChevronRight className="h-4 w-4" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>다음 슬라이드 (→ 또는 Space)</p>
+              </TooltipContent>
+            </Tooltip>
+          </div>
+
+          {/* Right: Slide Counter */}
+          <div className="text-sm font-medium text-muted-foreground">
+            {currentSlideIndex + 1} / {presentation.slides.length}
           </div>
         </div>
       </div>
