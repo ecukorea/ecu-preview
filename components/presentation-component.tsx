@@ -18,30 +18,33 @@ interface PresentationComponentProps {
 function parseFormattedText(text: string) {
   // Split by markdown patterns while preserving the markers
   const parts = text.split(/(`[^`]+`|\*\*[^*]+\*\*|\*[^*]+\*|__[^_]+__)/g)
-  
+
   return parts.map((part, index) => {
-    if (part.startsWith('`') && part.endsWith('`')) {
+    if (part.startsWith("`") && part.endsWith("`")) {
       // Code/emphasis with backticks
       return (
-        <code key={index} className="bg-primary/10 px-1.5 py-0.5 rounded text-primary font-semibold">
+        <code
+          key={index}
+          className="bg-primary/10 px-1.5 py-0.5 rounded text-primary font-semibold"
+        >
           {part.slice(1, -1)}
         </code>
       )
-    } else if (part.startsWith('**') && part.endsWith('**')) {
+    } else if (part.startsWith("**") && part.endsWith("**")) {
       // Bold text
       return (
         <strong key={index} className="font-bold text-primary">
           {part.slice(2, -2)}
         </strong>
       )
-    } else if (part.startsWith('*') && part.endsWith('*')) {
+    } else if (part.startsWith("*") && part.endsWith("*")) {
       // Italic text
       return (
         <em key={index} className="italic text-secondary">
           {part.slice(1, -1)}
         </em>
       )
-    } else if (part.startsWith('__') && part.endsWith('__')) {
+    } else if (part.startsWith("__") && part.endsWith("__")) {
       // Underlined text
       return (
         <span key={index} className="underline decoration-primary decoration-2 underline-offset-2">
@@ -171,141 +174,142 @@ export function PresentationComponent({
               className="w-full max-w-4xl relative overflow-hidden cursor-pointer group transition-all duration-300 hover:scale-[1.02] hover:shadow-xl bg-white border border-border/50 shadow-2xl"
               onClick={handleSlideClick}
             >
-          {/* Subtle background pattern */}
-          <div className="absolute inset-0 opacity-5">
-            <div className="absolute inset-0 bg-grid-pattern"></div>
-          </div>
+              {/* Subtle background pattern */}
+              <div className="absolute inset-0 opacity-5">
+                <div className="absolute inset-0 bg-grid-pattern"></div>
+              </div>
 
-          <div className="relative p-6 sm:p-10 md:p-16 min-h-[600px] sm:min-h-[650px] md:min-h-[700px] flex flex-col items-center justify-center text-center overflow-y-auto overflow-x-hidden">
-            {/* Speaker Name Only */}
-            {currentSlide.speaker && (
-              <div className="mb-8">
-                <div className="inline-flex items-center gap-2 px-3 py-1 bg-secondary/20 rounded-full">
-                  <span className="text-lg">{currentSlide.speaker.emoji}</span>
-                  <p className="text-lg sm:text-xl font-semibold text-secondary">
-                    {currentSlide.speaker.name}
-                  </p>
+              <div className="relative p-6 sm:p-10 md:p-16 min-h-[600px] sm:min-h-[650px] md:min-h-[700px] flex flex-col items-center justify-center text-center overflow-y-auto overflow-x-hidden">
+                {/* Speaker Name Only */}
+                {currentSlide.speaker && (
+                  <div className="mb-8">
+                    <div className="inline-flex items-center gap-2 px-3 py-1 bg-secondary/20 rounded-full">
+                      <span className="text-lg">{currentSlide.speaker.emoji}</span>
+                      <p className="text-lg sm:text-xl font-semibold text-secondary">
+                        {currentSlide.speaker.name}
+                      </p>
+                    </div>
+                  </div>
+                )}
+
+                {/* Slide Content */}
+                <div
+                  className={`transition-all duration-700 ease-out ${
+                    isVisible
+                      ? "opacity-100 translate-y-0 scale-100"
+                      : "opacity-0 translate-y-8 scale-95"
+                  }`}
+                >
+                  {/* Lottie Animations */}
+                  {currentSlide.lottie && (
+                    <div className="mb-4 sm:mb-6 md:mb-8 flex justify-center">
+                      <div className="flex gap-2 sm:gap-4 md:gap-6 flex-wrap justify-center">
+                        {currentSlide.lottie?.src.map((src, index) => {
+                          // Character mapping for reliable name-to-lottie association
+                          const characterMap = {
+                            "/assets/lottie/male-02.lottie": { name: "준수", emoji: "🤔" },
+                            "/assets/lottie/female-01.lottie": { name: "민지", emoji: "😊" },
+                            "/assets/lottie/female-02.lottie": { name: "수연", emoji: "🙏" },
+                            "/assets/lottie/male-04.lottie": { name: "태민", emoji: "💪" },
+                          }
+                          const character = characterMap[src as keyof typeof characterMap] || {
+                            name: "Unknown",
+                            emoji: "❓",
+                          }
+                          const isMultipleCharacters = (currentSlide.lottie?.src.length || 0) > 1
+
+                          return (
+                            <div key={index} className="relative flex flex-col items-center">
+                              <div className="relative">
+                                <div className="absolute inset-0 bg-primary/10 rounded-full blur-xl animate-pulse"></div>
+                                <DotLottieReact
+                                  src={src}
+                                  loop
+                                  autoplay
+                                  style={{
+                                    width: isMultipleCharacters
+                                      ? currentSlide.lottie?.width || 100
+                                      : currentSlide.lottie?.width || 180,
+                                    height: isMultipleCharacters
+                                      ? currentSlide.lottie?.height || 100
+                                      : currentSlide.lottie?.height || 180,
+                                  }}
+                                />
+                              </div>
+                              {isMultipleCharacters && (
+                                <div className="mt-1 sm:mt-2 text-center">
+                                  <div className="inline-flex items-center gap-1 px-2 py-0.5 bg-primary/10 rounded-full">
+                                    <span className="text-sm sm:text-base">{character.emoji}</span>
+                                    <span className="text-sm sm:text-base font-medium text-primary">
+                                      {character.name}
+                                    </span>
+                                  </div>
+                                </div>
+                              )}
+                            </div>
+                          )
+                        })}
+                      </div>
+                    </div>
+                  )}
+
+                  {currentSlide.type === "question" ? (
+                    <h3 className="text-lg sm:text-xl md:text-2xl font-bold leading-relaxed text-foreground mb-4">
+                      {currentSlide.content.split("\n").map((line, index) => (
+                        <span key={index}>
+                          {parseFormattedText(line)}
+                          {index < currentSlide.content.split("\n").length - 1 && <br />}
+                        </span>
+                      ))}
+                    </h3>
+                  ) : currentSlide.type === "quote" ? (
+                    <div className="relative">
+                      <div className="absolute -left-2 sm:-left-4 -top-2 sm:-top-4 text-4xl sm:text-6xl text-primary/20 font-serif">
+                        &ldquo;
+                      </div>
+                      <blockquote className="text-base sm:text-lg md:text-xl italic leading-relaxed text-foreground font-medium px-2 sm:px-6 py-3 sm:py-4 bg-primary/5 rounded-lg border-l-4 border-primary w-full max-w-full">
+                        {currentSlide.content.split("\n").map((line, index) => (
+                          <span key={index}>
+                            {parseFormattedText(line)}
+                            {index < currentSlide.content.split("\n").length - 1 && <br />}
+                          </span>
+                        ))}
+                      </blockquote>
+                      <div className="absolute -right-2 sm:-right-4 -bottom-2 sm:-bottom-4 text-4xl sm:text-6xl text-primary/20 font-serif">
+                        &rdquo;
+                      </div>
+                    </div>
+                  ) : currentSlide.type === "lottie" ? (
+                    <div className="text-center space-y-2 sm:space-y-4">
+                      <p className="text-base sm:text-lg md:text-xl leading-relaxed text-foreground font-medium">
+                        {currentSlide.content.split("\n").map((line, index) => (
+                          <span key={index}>
+                            {parseFormattedText(line)}
+                            {index < currentSlide.content.split("\n").length - 1 && <br />}
+                          </span>
+                        ))}
+                      </p>
+                    </div>
+                  ) : (
+                    <p className="text-base sm:text-lg md:text-xl leading-relaxed text-foreground font-medium max-w-full px-2">
+                      {currentSlide.content.split("\n").map((line, index) => (
+                        <span key={index}>
+                          {parseFormattedText(line)}
+                          {index < currentSlide.content.split("\n").length - 1 && <br />}
+                        </span>
+                      ))}
+                    </p>
+                  )}
                 </div>
               </div>
-            )}
 
-            {/* Slide Content */}
-            <div
-              className={`transition-all duration-700 ease-out ${
-                isVisible
-                  ? "opacity-100 translate-y-0 scale-100"
-                  : "opacity-0 translate-y-8 scale-95"
-              }`}
-            >
-              {/* Lottie Animations */}
-              {currentSlide.lottie && (
-                <div className="mb-4 sm:mb-6 md:mb-8 flex justify-center">
-                  <div className="flex gap-2 sm:gap-4 md:gap-6 flex-wrap justify-center">
-                    {currentSlide.lottie?.src.map((src, index) => {
-                      // Character mapping for reliable name-to-lottie association
-                      const characterMap = {
-                        "/assets/lottie/male-02.lottie": { name: "준수", emoji: "🤔" },
-                        "/assets/lottie/female-01.lottie": { name: "민지", emoji: "😊" },
-                        "/assets/lottie/female-02.lottie": { name: "수연", emoji: "🙏" },
-                        "/assets/lottie/male-04.lottie": { name: "태민", emoji: "💪" },
-                      }
-                      const character = characterMap[src as keyof typeof characterMap] || { name: "Unknown", emoji: "❓" }
-                      const isMultipleCharacters = currentSlide.lottie?.src.length > 1
-
-                      return (
-                        <div key={index} className="relative flex flex-col items-center">
-                          <div className="relative">
-                            <div className="absolute inset-0 bg-primary/10 rounded-full blur-xl animate-pulse"></div>
-                            <DotLottieReact
-                              src={src}
-                              loop
-                              autoplay
-                              style={{
-                                width: isMultipleCharacters
-                                  ? currentSlide.lottie?.width || 100
-                                  : currentSlide.lottie?.width || 180,
-                                height: isMultipleCharacters
-                                  ? currentSlide.lottie?.height || 100
-                                  : currentSlide.lottie?.height || 180,
-                              }}
-                            />
-                          </div>
-                          {isMultipleCharacters && (
-                            <div className="mt-1 sm:mt-2 text-center">
-                              <div className="inline-flex items-center gap-1 px-2 py-0.5 bg-primary/10 rounded-full">
-                                <span className="text-sm sm:text-base">
-                                  {character.emoji}
-                                </span>
-                                <span className="text-sm sm:text-base font-medium text-primary">
-                                  {character.name}
-                                </span>
-                              </div>
-                            </div>
-                          )}
-                        </div>
-                      )
-                    })}
-                  </div>
+              {/* Hover indicator */}
+              <div className="absolute bottom-4 right-4 opacity-0 group-hover:opacity-60 transition-opacity">
+                <div className="flex items-center gap-1 text-sm text-muted-foreground">
+                  <span>클릭</span>
+                  <ChevronRight className="w-3 h-3" />
                 </div>
-              )}
-
-              {currentSlide.type === "question" ? (
-                <h3 className="text-lg sm:text-xl md:text-2xl font-bold leading-relaxed text-foreground mb-4">
-                  {currentSlide.content.split("\n").map((line, index) => (
-                    <span key={index}>
-                      {parseFormattedText(line)}
-                      {index < currentSlide.content.split("\n").length - 1 && <br />}
-                    </span>
-                  ))}
-                </h3>
-              ) : currentSlide.type === "quote" ? (
-                <div className="relative">
-                  <div className="absolute -left-2 sm:-left-4 -top-2 sm:-top-4 text-4xl sm:text-6xl text-primary/20 font-serif">
-                    "
-                  </div>
-                  <blockquote className="text-base sm:text-lg md:text-xl italic leading-relaxed text-foreground font-medium px-2 sm:px-6 py-3 sm:py-4 bg-primary/5 rounded-lg border-l-4 border-primary w-full max-w-full">
-                    {currentSlide.content.split("\n").map((line, index) => (
-                      <span key={index}>
-                        {parseFormattedText(line)}
-                        {index < currentSlide.content.split("\n").length - 1 && <br />}
-                      </span>
-                    ))}
-                  </blockquote>
-                  <div className="absolute -right-2 sm:-right-4 -bottom-2 sm:-bottom-4 text-4xl sm:text-6xl text-primary/20 font-serif">
-                    "
-                  </div>
-                </div>
-              ) : currentSlide.type === "lottie" ? (
-                <div className="text-center space-y-2 sm:space-y-4">
-                  <p className="text-base sm:text-lg md:text-xl leading-relaxed text-foreground font-medium">
-                    {currentSlide.content.split("\n").map((line, index) => (
-                      <span key={index}>
-                        {parseFormattedText(line)}
-                        {index < currentSlide.content.split("\n").length - 1 && <br />}
-                      </span>
-                    ))}
-                  </p>
-                </div>
-              ) : (
-                <p className="text-base sm:text-lg md:text-xl leading-relaxed text-foreground font-medium max-w-full px-2">
-                  {currentSlide.content.split("\n").map((line, index) => (
-                    <span key={index}>
-                      {parseFormattedText(line)}
-                      {index < currentSlide.content.split("\n").length - 1 && <br />}
-                    </span>
-                  ))}
-                </p>
-              )}
-            </div>
-          </div>
-
-          {/* Hover indicator */}
-          <div className="absolute bottom-4 right-4 opacity-0 group-hover:opacity-60 transition-opacity">
-            <div className="flex items-center gap-1 text-sm text-muted-foreground">
-              <span>클릭</span>
-              <ChevronRight className="w-3 h-3" />
-            </div>
-          </div>
+              </div>
             </Card>
           </TooltipTrigger>
           <TooltipContent>
@@ -329,7 +333,9 @@ export function PresentationComponent({
             </div>
           </TooltipTrigger>
           <TooltipContent>
-            <p>진행률: {Math.round(((currentSlideIndex + 1) / presentation.slides.length) * 100)}%</p>
+            <p>
+              진행률: {Math.round(((currentSlideIndex + 1) / presentation.slides.length) * 100)}%
+            </p>
           </TooltipContent>
         </Tooltip>
 
@@ -378,7 +384,12 @@ export function PresentationComponent({
 
             <Tooltip>
               <TooltipTrigger asChild>
-                <Button variant="ghost" size="sm" onClick={handleNext} className="h-8 w-8 rounded-full">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={handleNext}
+                  className="h-8 w-8 rounded-full"
+                >
                   <ChevronRight className="h-4 w-4" />
                 </Button>
               </TooltipTrigger>

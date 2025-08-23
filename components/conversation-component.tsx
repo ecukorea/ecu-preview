@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react"
 import { Card } from "@/components/ui/card"
 import { CheckCircle } from "lucide-react"
-import { Conversation, UserProgress } from "@/lib/types"
+import { Conversation, UserProgress, InteractionItem } from "@/lib/types"
 
 interface ConversationComponentProps {
   conversation: Conversation
@@ -39,7 +39,7 @@ export function ConversationComponent({
         const message = initialMessages[messageIndex]
         const messageComponent = (
           <div
-            key={`${conversation.id}-initial-${messageIndex}-${Date.now()}`}
+            key={`${(conversation as InteractionItem).id}-initial-${messageIndex}-${Date.now()}`}
             className={`flex items-start gap-4 ${message.speaker === "person2" ? "flex-row-reverse" : ""} animate-in fade-in duration-500 slide-in-from-top-2`}
           >
             <div className="text-3xl">{message.emoji}</div>
@@ -96,7 +96,7 @@ export function ConversationComponent({
     return () => {
       timeouts.forEach(timeout => clearTimeout(timeout))
     }
-  }, [conversation.id, conversationChoice])
+  }, [(conversation as InteractionItem).id, conversationChoice])
 
   const handleChoiceSelect = (answerIndex: number) => {
     setShowChoicePrompt(false)
@@ -104,7 +104,7 @@ export function ConversationComponent({
     // Add selected choice message
     const choiceComponent = (
       <div
-        key={`${conversation.id}-choice-selected-${Date.now()}`}
+        key={`${(conversation as InteractionItem).id}-choice-selected-${Date.now()}`}
         className="flex items-start gap-4 animate-in fade-in duration-500 slide-in-from-top-2"
       >
         <div className="text-3xl">😊</div>
@@ -131,7 +131,7 @@ export function ConversationComponent({
         const message = outcomeMessages[outcomeIndex]
         const outcomeComponent = (
           <div
-            key={`${conversation.id}-outcome-${outcomeIndex}-${Date.now()}`}
+            key={`${(conversation as InteractionItem).id}-outcome-${outcomeIndex}-${Date.now()}`}
             className={`flex items-start gap-4 ${message.speaker === "person2" ? "flex-row-reverse" : ""} animate-in fade-in duration-500 slide-in-from-top-2`}
           >
             <div className="text-3xl">{message.emoji}</div>

@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react"
 import { Card } from "@/components/ui/card"
 import { CheckCircle } from "lucide-react"
-import { Question, UserProgress } from "@/lib/types"
+import { Question, UserProgress, InteractionItem } from "@/lib/types"
 
 interface QuestionComponentProps {
   question: Question
@@ -43,7 +43,7 @@ export function QuestionComponent({
       setShowOptions(true)
       setVisibleOptions(Array.from({ length: question.options.length }, (_, i) => i))
     }, 1300)
-  }, [question.id])
+  }, [(question as InteractionItem).id])
 
   return (
     <>

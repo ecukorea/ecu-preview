@@ -140,20 +140,24 @@ When extending the application:
 ## Key Dependencies
 
 ### UI & Styling
+
 - **@radix-ui/react-\***: Comprehensive primitive component library (40+ components)
 - **class-variance-authority**: Type-safe variant API for component styling
 - **tailwind-merge**: Conflict resolution for Tailwind classes
 - **tailwindcss-animate + tw-animate-css**: Enhanced animation support
 
 ### Forms & Validation
+
 - **react-hook-form**: Form state management and validation
 - **@hookform/resolvers**: Validation resolvers for react-hook-form
 - **zod**: TypeScript-first schema validation
 
 ### Animation & Media
+
 - **@lottiefiles/dotlottie-react**: Lottie animation rendering for character presentations
 
 ### Other Notable Libraries
+
 - **next-themes**: Theme switching functionality (though not actively used in current implementation)
 - **lucide-react**: Consistent icon library
 - **sonner**: Toast notifications
