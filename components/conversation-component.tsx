@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useState, useRef } from "react"
 import { Card } from "@/components/ui/card"
 import { CheckCircle } from "lucide-react"
 import { Conversation, UserProgress, InteractionItem } from "@/lib/types"
@@ -22,6 +22,16 @@ export function ConversationComponent({
 }: ConversationComponentProps) {
   const [renderedMessages, setRenderedMessages] = useState<React.ReactNode[]>([])
   const [showChoicePrompt, setShowChoicePrompt] = useState(false)
+  const messagesEndRef = useRef<HTMLDivElement>(null)
+
+  // Auto-scroll to bottom when new messages are added
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
+  }
+
+  useEffect(() => {
+    scrollToBottom()
+  }, [renderedMessages, showChoicePrompt])
 
   useEffect(() => {
     // Only reset if conversation changes and no choice has been made yet
@@ -224,6 +234,8 @@ export function ConversationComponent({
             </div>
           </div>
         )}
+        {/* Scroll anchor */}
+        <div ref={messagesEndRef} />
       </div>
 
       {/* Conversation Completed */}
