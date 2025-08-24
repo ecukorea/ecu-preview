@@ -5,7 +5,7 @@ set -e  # Exit on any error
 # Configuration
 S3_BUCKET="${S3_BUCKET:-preview.ecukorea.com}"
 AWS_REGION="${AWS_REGION:-ap-northeast-2}"
-CLOUDFRONT_DISTRIBUTION_ID="${CLOUDFRONT_DISTRIBUTION_ID:-E43967L3135CV}"
+CLOUDFRONT_DISTRIBUTION_ID="${CLOUDFRONT_DISTRIBUTION_ID:-E1GLXEUD2X75LK}"
 BUILD_DIR="./out"
 AWS_PROFILE="${AWS_PROFILE:-personal}"
 
@@ -126,66 +126,12 @@ aws s3 cp "s3://$S3_BUCKET" "s3://$S3_BUCKET" \
 
 echo "✅ Files successfully uploaded to S3!"
 
-# Create CloudFront distribution if not provided
+# Check if CloudFront distribution ID is provided
 if [ -z "$CLOUDFRONT_DISTRIBUTION_ID" ]; then
-    echo "🌐 Creating CloudFront distribution..."
-    
-    # Create CloudFront distribution
-    DISTRIBUTION_CONFIG="{
-        \"CallerReference\": \"ecu-preview-$(date +%s)\",
-        \"Comment\": \"ECU Preview Static Site Distribution\",
-        \"DefaultCacheBehavior\": {
-            \"TargetOriginId\": \"S3-$S3_BUCKET\",
-            \"ViewerProtocolPolicy\": \"redirect-to-https\",
-            \"MinTTL\": 0,
-            \"ForwardedValues\": {
-                \"QueryString\": false,
-                \"Cookies\": {\"Forward\": \"none\"}
-            },
-            \"TrustedSigners\": {
-                \"Enabled\": false,
-                \"Quantity\": 0
-            }
-        },
-        \"Origins\": {
-            \"Quantity\": 1,
-            \"Items\": [{
-                \"Id\": \"S3-$S3_BUCKET\",
-                \"DomainName\": \"$S3_BUCKET.s3.$AWS_REGION.amazonaws.com\",
-                \"S3OriginConfig\": {
-                    \"OriginAccessIdentity\": \"\"
-                }
-            }]
-        },
-        \"Enabled\": true,
-        \"PriceClass\": \"PriceClass_100\",
-        \"DefaultRootObject\": \"index.html\",
-        \"CustomErrorResponses\": {
-            \"Quantity\": 1,
-            \"Items\": [{
-                \"ErrorCode\": 404,
-                \"ResponsePagePath\": \"/index.html\",
-                \"ResponseCode\": \"200\",
-                \"ErrorCachingMinTTL\": 300
-            }]
-        }
-    }"
-    
-    CLOUDFRONT_DISTRIBUTION_ID=$(aws cloudfront create-distribution \
-        --distribution-config "$DISTRIBUTION_CONFIG" \
-        --query 'Distribution.Id' \
-        --output text)
-    
-    echo "✅ CloudFront distribution created: $CLOUDFRONT_DISTRIBUTION_ID"
-    echo "⏳ Waiting for CloudFront distribution to deploy..."
-    
-    aws cloudfront wait distribution-deployed \
-        --id "$CLOUDFRONT_DISTRIBUTION_ID"
-    
-    echo "✅ CloudFront distribution deployed!"
-    
-    # Save the distribution ID for future use
-    echo "📋 CloudFront Distribution ID: $CLOUDFRONT_DISTRIBUTION_ID"
+    echo "⚠️  No CloudFront distribution ID provided. Skipping cache invalidation."
+    echo "   Set CLOUDFRONT_DISTRIBUTION_ID environment variable to enable cache clearing."
+else
+    echo "🔍 Using CloudFront distribution: $CLOUDFRONT_DISTRIBUTION_ID"
 fi
 
 # Invalidate CloudFront if distribution ID is available
