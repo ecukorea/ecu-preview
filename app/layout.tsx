@@ -11,9 +11,8 @@ const dmSans = DM_Sans({
 })
 
 export const metadata: Metadata = {
-  title: "ChristianLearn - Interactive Bible Study",
-  description: "Learn about Christianity through interactive lessons and quizzes",
-  generator: "v0.app",
+  title: "ECU 맛보기",
+  description: "빛나는 대학생활을 위한 ECU 맛보기 컨텐츠",
 }
 
 export default function RootLayout({
@@ -22,7 +21,7 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="en" className={dmSans.variable}>
+    <html lang="ko" className={dmSans.variable}>
       <body className="antialiased">{children}</body>
     </html>
   )
