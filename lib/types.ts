@@ -37,7 +37,6 @@ export interface PresentationSlide {
   content: string
   speaker?: {
     name: string
-    avatar: string
     emoji?: string
   }
   lottie?: {
