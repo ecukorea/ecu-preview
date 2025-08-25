@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useState, useRef } from "react"
 import { Card } from "@/components/ui/card"
 import { CheckCircle } from "lucide-react"
 import { Question, UserProgress, InteractionItem } from "@/lib/types"
@@ -24,6 +24,7 @@ export function QuestionComponent({
   const [showFriendQuestion, setShowFriendQuestion] = useState(false)
   const [showOptions, setShowOptions] = useState(false)
   const [visibleOptions, setVisibleOptions] = useState<number[]>([])
+  const resultRef = useRef<HTMLDivElement>(null)
 
   const isCorrect = selectedAnswer === question.correctAnswer
 
@@ -44,6 +45,19 @@ export function QuestionComponent({
       setVisibleOptions(Array.from({ length: question.options.length }, (_, i) => i))
     }, 1300)
   }, [(question as InteractionItem).id])
+
+  // Auto-scroll to result section when it appears
+  useEffect(() => {
+    if (showResult && resultRef.current) {
+      setTimeout(() => {
+        resultRef.current?.scrollIntoView({ 
+          behavior: 'smooth',
+          block: 'start',
+          inline: 'nearest'
+        })
+      }, 100)
+    }
+  }, [showResult])
 
   return (
     <>
@@ -132,7 +146,7 @@ export function QuestionComponent({
 
       {/* Result and Explanation */}
       {showResult && (
-        <Card className="p-4 mb-6">
+        <Card ref={resultRef} className="p-4 mb-6">
           <div className="flex items-center gap-2 mb-3">
             {isCorrect ? (
               <>

@@ -23,6 +23,7 @@ export function ConversationComponent({
   const [renderedMessages, setRenderedMessages] = useState<React.ReactNode[]>([])
   const [showChoicePrompt, setShowChoicePrompt] = useState(false)
   const messagesEndRef = useRef<HTMLDivElement>(null)
+  const resultRef = useRef<HTMLDivElement>(null)
 
   // Auto-scroll to bottom when new messages are added
   const scrollToBottom = () => {
@@ -32,6 +33,19 @@ export function ConversationComponent({
   useEffect(() => {
     scrollToBottom()
   }, [renderedMessages, showChoicePrompt])
+
+  // Auto-scroll to result section when it appears
+  useEffect(() => {
+    if (showResult && resultRef.current) {
+      setTimeout(() => {
+        resultRef.current?.scrollIntoView({ 
+          behavior: 'smooth',
+          block: 'start',
+          inline: 'nearest'
+        })
+      }, 100)
+    }
+  }, [showResult])
 
   useEffect(() => {
     // Only reset if conversation changes and no choice has been made yet
@@ -240,7 +254,7 @@ export function ConversationComponent({
 
       {/* Conversation Completed */}
       {showResult && (
-        <Card className="p-4 mb-6">
+        <Card ref={resultRef} className="p-4 mb-6">
           <div className="flex items-center gap-2 mb-3">
             <CheckCircle className="w-5 h-5 text-green-500" />
             <span className="font-semibold text-green-700">이야기를 완료했습니다!</span>
