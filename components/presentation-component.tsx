@@ -158,7 +158,7 @@ export function PresentationComponent({
   }, [currentSlideIndex, isPlaying, currentSlide.duration, isLastSlide])
 
   return (
-    <div className="min-h-screen flex flex-col bg-gradient-to-br from-background to-muted/20 relative">
+    <div className="bg-gradient-to-br from-background to-muted/20 relative">
       {/* Chapter Title - Now at top without fixed positioning */}
       <div className="pt-4 pb-6 text-center px-6">
         <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-foreground bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
@@ -167,7 +167,7 @@ export function PresentationComponent({
       </div>
 
       {/* Main Slide Content - Expanded */}
-      <div className="flex-1 flex items-center justify-center px-4 pb-16">
+      <div className="flex-1 flex items-center justify-center px-4 pb-4">
         <Tooltip>
           <TooltipTrigger asChild>
             <Card
