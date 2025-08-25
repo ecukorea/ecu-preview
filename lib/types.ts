@@ -65,6 +65,5 @@ export interface UserProgress {
   streak: number
   totalQuestions: number
   correctAnswers: number
-  badges: string[]
   level: number
 }

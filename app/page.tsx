@@ -4,29 +4,22 @@ import { useEffect, useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { Progress } from "@/components/ui/progress"
-import { Award, Star, Trophy } from "lucide-react"
+import { Star, Trophy } from "lucide-react"
 import { QuestionComponent } from "@/components/question-component"
 import { ConversationComponent } from "@/components/conversation-component"
 import { PresentationComponent } from "@/components/presentation-component"
 import { Conversation, Presentation, Question, UserProgress } from "@/lib/types"
 import { interactions } from "@/data"
+import {
+  trackQuestionAnswered,
+  trackConversationCompleted,
+  trackPresentationViewed,
+  trackStreakAchieved,
+  trackScoreUpdate,
+  trackSessionProgress,
+  trackExternalLinkClick,
+} from "@/lib/analytics"
 
-const badges = [
-  { name: "First Steps", icon: "👶", description: "Complete your first question", requirement: 1 },
-  {
-    name: "Bible Scholar",
-    icon: "📖",
-    description: "Answer 5 questions correctly",
-    requirement: 5,
-  },
-  {
-    name: "Faithful Learner",
-    icon: "⭐",
-    description: "Maintain a 3-question streak",
-    requirement: 3,
-  },
-  { name: "Devoted Student", icon: "🏆", description: "Complete 10 questions", requirement: 10 },
-]
 
 export default function ChristianityLearningApp() {
   const [currentIndex, setCurrentIndex] = useState(0)
@@ -38,10 +31,8 @@ export default function ChristianityLearningApp() {
     streak: 0,
     totalQuestions: 0,
     correctAnswers: 0,
-    badges: [],
     level: 1,
   })
-  const [newBadge, setNewBadge] = useState<string | null>(null)
 
   const currentItem = interactions[currentIndex]
   const progressPercentage = ((currentIndex + 1) / interactions.length) * 100
@@ -53,68 +44,76 @@ export default function ChristianityLearningApp() {
     setConversationChoice(null)
   }, [currentIndex])
 
-  const checkForNewBadges = (progress: UserProgress) => {
-    const earnedBadges = badges.filter(badge => {
-      if (badge.name === "First Steps" && progress.totalQuestions >= 1) return true
-      if (badge.name === "Bible Scholar" && progress.correctAnswers >= 5) return true
-      if (badge.name === "Faithful Learner" && progress.streak >= 3) return true
-      if (badge.name === "Devoted Student" && progress.totalQuestions >= 10) return true
-      return false
-    })
-
-    const newBadges = earnedBadges.filter(badge => !progress.badges.includes(badge.name))
-    if (newBadges.length > 0) {
-      setNewBadge(newBadges[0].name)
-      setTimeout(() => setNewBadge(null), 3000)
-    }
-
-    return earnedBadges.map(badge => badge.name)
-  }
 
   const handleQuestionAnswer = (answerIndex: number) => {
     if (showResult) return
 
     setSelectedAnswer(answerIndex)
     const isCorrect = answerIndex === (currentItem as Question).correctAnswer
+    const question = currentItem as Question
+    
+    // Track question answered event
+    trackQuestionAnswered(currentItem.id, isCorrect, question.category)
+    
     const newProgress = {
       ...userProgress,
       totalQuestions: userProgress.totalQuestions + 1,
       correctAnswers: isCorrect ? userProgress.correctAnswers + 1 : userProgress.correctAnswers,
       streak: isCorrect ? userProgress.streak + 1 : 0,
       score: isCorrect ? userProgress.score + 10 : userProgress.score,
-      badges: userProgress.badges,
     }
-    newProgress.badges = checkForNewBadges(newProgress)
+    
+    // Track score update if points were earned
+    if (isCorrect) {
+      trackScoreUpdate(newProgress.score, 10)
+    }
+    
+    // Track streak achievements
+    if (newProgress.streak > userProgress.streak && newProgress.streak >= 3) {
+      trackStreakAchieved(newProgress.streak)
+    }
+    
     setUserProgress(newProgress)
     setShowResult(true)
   }
 
   const handleConversationChoice = (choiceIndex: number) => {
     setConversationChoice(choiceIndex)
+    const conversation = currentItem as Conversation
+    
+    // Track conversation completed event
+    trackConversationCompleted(currentItem.id, choiceIndex, conversation.category)
+    
     const newProgress = {
       ...userProgress,
       totalQuestions: userProgress.totalQuestions + 1,
-      badges: userProgress.badges,
     }
-    newProgress.badges = checkForNewBadges(newProgress)
     setUserProgress(newProgress)
     setShowResult(true)
   }
 
   const handlePresentationComplete = () => {
+    const presentation = currentItem as Presentation
+    
+    // Track presentation viewed event
+    trackPresentationViewed(currentItem.id, presentation.slides.length, presentation.category)
+    
     const newProgress = {
       ...userProgress,
       totalQuestions: userProgress.totalQuestions + 1,
-      badges: userProgress.badges,
     }
-    newProgress.badges = checkForNewBadges(newProgress)
     setUserProgress(newProgress)
     setShowResult(true)
   }
 
   const handleNext = () => {
     if (currentIndex < interactions.length - 1) {
-      setCurrentIndex(currentIndex + 1)
+      const newIndex = currentIndex + 1
+      setCurrentIndex(newIndex)
+      
+      // Track session progress
+      const newProgressPercentage = ((newIndex + 1) / interactions.length) * 100
+      trackSessionProgress(newIndex, interactions.length, newProgressPercentage)
     }
   }
 
@@ -150,17 +149,6 @@ export default function ChristianityLearningApp() {
         </div>
       </div>
 
-      {/* New Badge Notification */}
-      {newBadge && (
-        <div className="fixed top-20 left-1/2 transform -translate-x-1/2 z-20 animate-bounce">
-          <Card className="p-4 bg-secondary text-secondary-foreground shadow-lg">
-            <div className="flex items-center gap-2">
-              <Award className="w-5 h-5" />
-              <span className="font-semibold">새 배지: {newBadge}!</span>
-            </div>
-          </Card>
-        </div>
-      )}
 
       {/* Main Content */}
       <div className="p-4 pb-20">
@@ -213,7 +201,10 @@ export default function ChristianityLearningApp() {
               <Button
                 className="w-full"
                 size="lg"
-                onClick={() => window.open("https://ecukorea.com", "_blank")}
+                onClick={() => {
+                  trackExternalLinkClick("https://ecukorea.com", "ECU 웹사이트 방문하기")
+                  window.open("https://ecukorea.com", "_blank")
+                }}
               >
                 ECU 웹사이트 방문하기
               </Button>
