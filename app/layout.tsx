@@ -14,6 +14,11 @@ const dmSans = DM_Sans({
 export const metadata: Metadata = {
   title: "ECU 맛보기",
   description: "빛나는 대학생활을 위한 ECU 맛보기 컨텐츠",
+  icons: {
+    icon: "/favicon.ico",
+    shortcut: "/favicon.ico",
+    apple: "/favicon.ico",
+  },
 }
 
 export default function RootLayout({
