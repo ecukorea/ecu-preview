@@ -4,7 +4,7 @@ import { useEffect, useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { Progress } from "@/components/ui/progress"
-import { Star, Trophy } from "lucide-react"
+import { Trophy } from "lucide-react"
 import { QuestionComponent } from "@/components/question-component"
 import { ConversationComponent } from "@/components/conversation-component"
 import { PresentationComponent } from "@/components/presentation-component"
@@ -123,20 +123,13 @@ export default function ChristianityLearningApp() {
     <div className="min-h-screen bg-background">
       {/* Header */}
       <div className="sticky top-0 z-10 bg-card border-b border-border p-4">
-        <div className="flex items-center justify-between mb-3">
-          <div className="flex items-center gap-2">
-            <h1 className="text-lg sm:text-xl font-bold text-foreground">ECU 맛보기</h1>
-          </div>
-          <div className="flex items-center gap-3">
-            <div className="flex items-center gap-1">
-              <Star className="w-4 h-4 text-secondary" />
-              <span className="text-sm sm:text-base font-semibold">{userProgress.score}</span>
-            </div>
-          </div>
+        <div className="mb-3">
+          <h1 className="text-lg sm:text-xl font-bold text-foreground">ECU 맛보기</h1>
+          <p className="text-sm text-muted-foreground mt-1">빛나는 대학생활을 위한 ECU 맛보기 컨텐츠</p>
         </div>
 
         <Progress value={progressPercentage} className="h-2" />
-        <div className="flex justify-between items-center mt-2">
+        <div className="mt-2">
           <span className="text-xs text-muted-foreground">
             {currentItem.type === "question"
               ? "상황"
@@ -145,7 +138,6 @@ export default function ChristianityLearningApp() {
                 : "프레젠테이션"}{" "}
             {currentIndex + 1} / {interactions.length}
           </span>
-          <span className="text-xs text-muted-foreground">연속: {userProgress.streak} 🔥</span>
         </div>
       </div>
 
