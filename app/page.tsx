@@ -1,6 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react"
+import Image from "next/image"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { Progress } from "@/components/ui/progress"
@@ -11,15 +12,14 @@ import { PresentationComponent } from "@/components/presentation-component"
 import { Conversation, Presentation, Question, UserProgress } from "@/lib/types"
 import { interactions } from "@/data"
 import {
-  trackQuestionAnswered,
   trackConversationCompleted,
+  trackExternalLinkClick,
   trackPresentationViewed,
-  trackStreakAchieved,
+  trackQuestionAnswered,
   trackScoreUpdate,
   trackSessionProgress,
-  trackExternalLinkClick,
+  trackStreakAchieved,
 } from "@/lib/analytics"
-
 
 export default function ChristianityLearningApp() {
   const [currentIndex, setCurrentIndex] = useState(0)
@@ -44,17 +44,16 @@ export default function ChristianityLearningApp() {
     setConversationChoice(null)
   }, [currentIndex])
 
-
   const handleQuestionAnswer = (answerIndex: number) => {
     if (showResult) return
 
     setSelectedAnswer(answerIndex)
     const isCorrect = answerIndex === (currentItem as Question).correctAnswer
     const question = currentItem as Question
-    
+
     // Track question answered event
     trackQuestionAnswered(currentItem.id, isCorrect, question.category)
-    
+
     const newProgress = {
       ...userProgress,
       totalQuestions: userProgress.totalQuestions + 1,
@@ -62,17 +61,17 @@ export default function ChristianityLearningApp() {
       streak: isCorrect ? userProgress.streak + 1 : 0,
       score: isCorrect ? userProgress.score + 10 : userProgress.score,
     }
-    
+
     // Track score update if points were earned
     if (isCorrect) {
       trackScoreUpdate(newProgress.score, 10)
     }
-    
+
     // Track streak achievements
     if (newProgress.streak > userProgress.streak && newProgress.streak >= 3) {
       trackStreakAchieved(newProgress.streak)
     }
-    
+
     setUserProgress(newProgress)
     setShowResult(true)
   }
@@ -80,10 +79,10 @@ export default function ChristianityLearningApp() {
   const handleConversationChoice = (choiceIndex: number) => {
     setConversationChoice(choiceIndex)
     const conversation = currentItem as Conversation
-    
+
     // Track conversation completed event
     trackConversationCompleted(currentItem.id, choiceIndex, conversation.category)
-    
+
     const newProgress = {
       ...userProgress,
       totalQuestions: userProgress.totalQuestions + 1,
@@ -94,10 +93,10 @@ export default function ChristianityLearningApp() {
 
   const handlePresentationComplete = () => {
     const presentation = currentItem as Presentation
-    
+
     // Track presentation viewed event
     trackPresentationViewed(currentItem.id, presentation.slides.length, presentation.category)
-    
+
     const newProgress = {
       ...userProgress,
       totalQuestions: userProgress.totalQuestions + 1,
@@ -110,7 +109,7 @@ export default function ChristianityLearningApp() {
     if (currentIndex < interactions.length - 1) {
       const newIndex = currentIndex + 1
       setCurrentIndex(newIndex)
-      
+
       // Track session progress
       const newProgressPercentage = ((newIndex + 1) / interactions.length) * 100
       trackSessionProgress(newIndex, interactions.length, newProgressPercentage)
@@ -123,9 +122,14 @@ export default function ChristianityLearningApp() {
     <div className="min-h-screen bg-background">
       {/* Header */}
       <div className="sticky top-0 z-10 bg-card border-b border-border p-4">
-        <div className="mb-3">
-          <h1 className="text-lg sm:text-xl font-bold text-foreground">ECU 맛보기</h1>
-          <p className="text-sm text-muted-foreground mt-1">빛나는 대학생활을 위한 ECU 맛보기 컨텐츠</p>
+        <div className="flex items-center gap-3 mb-3">
+          <Image src="/logo.png" alt="ECU Logo" width={40} height={40} className="flex-shrink-0" />
+          <div className="flex-1">
+            <h1 className="text-lg sm:text-xl font-bold text-foreground">ECU 맛보기</h1>
+            <p className="text-sm text-muted-foreground mt-1">
+              빛나는 대학생활을 위한 ECU 맛보기 컨텐츠
+            </p>
+          </div>
         </div>
 
         <Progress value={progressPercentage} className="h-2" />
@@ -140,7 +144,6 @@ export default function ChristianityLearningApp() {
           </span>
         </div>
       </div>
-
 
       {/* Main Content */}
       <div className="p-4 pb-20">
