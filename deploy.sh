@@ -40,18 +40,6 @@ if ! aws sts get-caller-identity &> /dev/null; then
     exit 1
 fi
 
-# Create S3 bucket if it doesn't exist
-echo "📦 Checking if S3 bucket exists..."
-if ! aws s3api head-bucket --bucket "$S3_BUCKET" 2>/dev/null; then
-    echo "🆕 Creating S3 bucket: $S3_BUCKET"
-    aws s3api create-bucket \
-        --bucket "$S3_BUCKET" \
-        --region "$AWS_REGION" \
-        --create-bucket-configuration LocationConstraint="$AWS_REGION"
-    
-    echo "✅ S3 bucket created!"
-fi
-
 echo "📦 Syncing files to S3 bucket: s3://$S3_BUCKET"
 
 # Sync files to S3 with proper headers
