@@ -9,11 +9,11 @@ import { Trophy } from "lucide-react"
 import { QuestionComponent } from "@/components/question-component"
 import { ConversationComponent } from "@/components/conversation-component"
 import { PresentationComponent } from "@/components/presentation-component"
+import { CompletionModal } from "@/components/completion-modal"
 import { Conversation, Presentation, Question, UserProgress } from "@/lib/types"
 import { interactions } from "@/data"
 import {
   trackConversationCompleted,
-  trackExternalLinkClick,
   trackPresentationViewed,
   trackQuestionAnswered,
   trackScoreUpdate,
@@ -184,29 +184,12 @@ export default function ChristianityLearningApp() {
                   ? "다음 이야기"
                   : "다음 프레젠테이션"}
             </Button>
-          ) : (
-            <Card className="p-4 text-center">
-              <Trophy className="w-12 h-12 text-primary mx-auto mb-2" />
-              <h3 className="text-lg font-bold mb-3">
-                여기까지 ECU에서 하는 활동의 맛보기 였습니다.
-              </h3>
-              <p className="text-base text-muted-foreground mb-4">
-                함께 하고 싶은 분은 연락주세요!
-              </p>
-              <Button
-                className="w-full"
-                size="lg"
-                onClick={() => {
-                  trackExternalLinkClick("https://ecukorea.com", "ECU 웹사이트 방문하기")
-                  window.open("https://ecukorea.com", "_blank")
-                }}
-              >
-                ECU 웹사이트 방문하기
-              </Button>
-            </Card>
-          )
+          ) : null
         ) : null}
       </div>
+
+      {/* Completion Modal */}
+      <CompletionModal isOpen={currentIndex >= interactions.length - 1 && showResult} />
     </div>
   )
 }
