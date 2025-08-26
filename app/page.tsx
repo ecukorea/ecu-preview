@@ -3,9 +3,8 @@
 import { useEffect, useState } from "react"
 import Image from "next/image"
 import { Button } from "@/components/ui/button"
-import { Card } from "@/components/ui/card"
 import { Progress } from "@/components/ui/progress"
-import { Trophy } from "lucide-react"
+import { ExternalLink, Instagram, MessageCircle, Youtube } from "lucide-react"
 import { QuestionComponent } from "@/components/question-component"
 import { ConversationComponent } from "@/components/conversation-component"
 import { PresentationComponent } from "@/components/presentation-component"
@@ -14,6 +13,7 @@ import { Conversation, Presentation, Question, UserProgress } from "@/lib/types"
 import { interactions } from "@/data"
 import {
   trackConversationCompleted,
+  trackExternalLinkClick,
   trackPresentationViewed,
   trackQuestionAnswered,
   trackScoreUpdate,
@@ -122,13 +122,79 @@ export default function ChristianityLearningApp() {
     <div className="min-h-screen bg-background">
       {/* Header */}
       <div className="sticky top-0 z-10 bg-card border-b border-border p-4">
-        <div className="flex items-center gap-3 mb-3">
-          <Image src="/logo.png" alt="ECU Logo" width={40} height={40} className="flex-shrink-0" />
-          <div className="flex-1">
-            <h1 className="text-lg sm:text-xl font-bold text-foreground">ECU 맛보기</h1>
-            <p className="text-sm text-muted-foreground mt-1">
-              빛나는 대학생활을 위한 ECU 맛보기 컨텐츠
-            </p>
+        <div className="mb-3">
+          <div className="flex items-center gap-3 mb-1">
+            <Image
+              src="/logo.png"
+              alt="ECU Logo"
+              width={40}
+              height={40}
+              className="flex-shrink-0"
+            />
+            <div className="flex-1">
+              <div className="flex justify-between">
+                <h1 className="text-lg sm:text-xl font-bold text-foreground flex-1">ECU 맛보기</h1>
+                <div className="flex items-center gap-1 sm:gap-2">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="h-8 w-8 p-0"
+                    onClick={() => {
+                      trackExternalLinkClick("https://ecukorea.com", "ECU 웹사이트")
+                      window.open("https://ecukorea.com", "_blank")
+                    }}
+                    title="ECU 웹사이트"
+                  >
+                    <ExternalLink className="h-5 w-5" />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="h-8 w-8 p-0"
+                    onClick={() => {
+                      trackExternalLinkClick("https://pf.kakao.com/_uUBKn", "ECU 카카오톡 채널")
+                      window.open("https://pf.kakao.com/_uUBKn", "_blank")
+                    }}
+                    title="ECU 카카오톡 채널"
+                  >
+                    <MessageCircle className="h-5 w-5" />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="h-8 w-8 p-0"
+                    onClick={() => {
+                      trackExternalLinkClick(
+                        "https://www.instagram.com/ecu4u_official",
+                        "ECU 인스타그램"
+                      )
+                      window.open("https://www.instagram.com/ecu4u_official", "_blank")
+                    }}
+                    title="ECU 인스타그램"
+                  >
+                    <Instagram className="h-5 w-5" />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="h-8 w-8 p-0"
+                    onClick={() => {
+                      trackExternalLinkClick(
+                        "https://www.youtube.com/@elgracekorea",
+                        "박영덕 목사 성경학교 유튜브 채널"
+                      )
+                      window.open("https://www.youtube.com/@elgracekorea", "_blank")
+                    }}
+                    title="박영덕 목사 성경학교 유튜브 채널"
+                  >
+                    <Youtube className="h-5 w-5" />
+                  </Button>
+                </div>
+              </div>
+              <p className="text-sm text-muted-foreground">
+                빛나는 대학생활을 위한 ECU 맛보기 컨텐츠
+              </p>
+            </div>
           </div>
         </div>
 
