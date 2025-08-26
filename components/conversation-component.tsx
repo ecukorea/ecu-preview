@@ -1,9 +1,10 @@
 "use client"
 
-import { useEffect, useState, useRef } from "react"
+import { useEffect, useRef, useState } from "react"
 import { Card } from "@/components/ui/card"
 import { CheckCircle } from "lucide-react"
-import { Conversation, UserProgress, InteractionItem } from "@/lib/types"
+import { Conversation, InteractionItem, UserProgress } from "@/lib/types"
+import { ExplanationWithReferences } from "@/components/explanation-with-references"
 
 interface ConversationComponentProps {
   conversation: Conversation
@@ -27,7 +28,7 @@ export function ConversationComponent({
 
   // Auto-scroll to bottom when new messages are added
   const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
   }
 
   useEffect(() => {
@@ -38,10 +39,10 @@ export function ConversationComponent({
   useEffect(() => {
     if (showResult && resultRef.current) {
       setTimeout(() => {
-        resultRef.current?.scrollIntoView({ 
-          behavior: 'smooth',
-          block: 'start',
-          inline: 'nearest'
+        resultRef.current?.scrollIntoView({
+          behavior: "smooth",
+          block: "start",
+          inline: "nearest",
         })
       }, 100)
     }
@@ -255,14 +256,15 @@ export function ConversationComponent({
       {/* Conversation Completed */}
       {showResult && (
         <Card ref={resultRef} className="p-4 mb-6">
-          <div className="flex items-center gap-2 mb-3">
+          <div className="flex items-center gap-2">
             <CheckCircle className="w-5 h-5 text-green-500" />
             <span className="font-semibold text-green-700">이야기를 완료했습니다!</span>
           </div>
-          <div className="mt-3 p-3 bg-muted rounded-lg">
-            <p className="text-sm text-muted-foreground leading-relaxed">
-              로마서의 깊은 의미를 두 친구의 대화를 통해 경험해 보았습니다.
-            </p>
+          <div className="mt-1 p-3 bg-muted rounded-lg">
+            <ExplanationWithReferences
+              explanation={conversation.explanation}
+              references={conversation.references}
+            />
           </div>
         </Card>
       )}

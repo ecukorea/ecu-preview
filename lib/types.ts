@@ -4,6 +4,7 @@ export interface Question {
   options: string[]
   correctAnswer: number
   explanation: string
+  references: {book: string, content?: string}[]
   category: string
   emoji: string
   type: "question"
@@ -29,6 +30,8 @@ export interface Conversation {
   title: string
   description: string
   steps: ConversationStep[]
+  explanation: string
+  references: {book: string, content: string}[]
   category: string
   type: "conversation"
 }

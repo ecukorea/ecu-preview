@@ -1,9 +1,10 @@
 "use client"
 
-import { useEffect, useState, useRef } from "react"
+import { useEffect, useRef, useState } from "react"
 import { Card } from "@/components/ui/card"
 import { CheckCircle } from "lucide-react"
-import { Question, UserProgress, InteractionItem } from "@/lib/types"
+import { InteractionItem, Question, UserProgress } from "@/lib/types"
+import { ExplanationWithReferences } from "@/components/explanation-with-references"
 
 interface QuestionComponentProps {
   question: Question
@@ -50,10 +51,10 @@ export function QuestionComponent({
   useEffect(() => {
     if (showResult && resultRef.current) {
       setTimeout(() => {
-        resultRef.current?.scrollIntoView({ 
-          behavior: 'smooth',
-          block: 'start',
-          inline: 'nearest'
+        resultRef.current?.scrollIntoView({
+          behavior: "smooth",
+          block: "start",
+          inline: "nearest",
         })
       }, 100)
     }
@@ -147,7 +148,7 @@ export function QuestionComponent({
       {/* Result and Explanation */}
       {showResult && (
         <Card ref={resultRef} className="p-4 mb-6">
-          <div className="flex items-center gap-2 mb-3">
+          <div className="flex items-center gap-2">
             {isCorrect ? (
               <>
                 <CheckCircle className="w-5 h-5 text-green-500" />
@@ -163,8 +164,11 @@ export function QuestionComponent({
             )}
           </div>
 
-          <div className="mt-3 p-3 bg-muted rounded-lg">
-            <p className="text-sm text-muted-foreground leading-relaxed">{question.explanation}</p>
+          <div className="mt-1 p-3 bg-muted rounded-lg">
+            <ExplanationWithReferences
+              explanation={question.explanation}
+              references={question.references}
+            />
           </div>
         </Card>
       )}
