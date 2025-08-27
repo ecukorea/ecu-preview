@@ -134,12 +134,47 @@ export function PresentationComponent({
     }
   }
 
-  const handleSlideClick = () => {
+  const handleSlideClick = (event: React.MouseEvent<HTMLDivElement>) => {
+    event.preventDefault()
     hideTooltips()
     if (isPlaying) {
       setIsPlaying(false)
     }
-    handleNext()
+    
+    // Get click position relative to the card
+    const rect = event.currentTarget.getBoundingClientRect()
+    const clickX = event.clientX - rect.left
+    const cardWidth = rect.width
+    const isLeftHalf = clickX < cardWidth / 2
+
+    // Navigate based on click position
+    if (isLeftHalf) {
+      handlePrevious()
+    } else {
+      handleNext()
+    }
+  }
+
+  const handleSlideTouch = (event: React.TouchEvent<HTMLDivElement>) => {
+    event.preventDefault()
+    hideTooltips()
+    if (isPlaying) {
+      setIsPlaying(false)
+    }
+    
+    // Get touch position relative to the card
+    const rect = event.currentTarget.getBoundingClientRect()
+    const touch = event.changedTouches[0]
+    const touchX = touch.clientX - rect.left
+    const cardWidth = rect.width
+    const isLeftHalf = touchX < cardWidth / 2
+
+    // Navigate based on touch position
+    if (isLeftHalf) {
+      handlePrevious()
+    } else {
+      handleNext()
+    }
   }
 
   const handlePrevious = () => {
@@ -239,7 +274,27 @@ export function PresentationComponent({
                   : 'w-full max-w-4xl border border-border/50 shadow-2xl hover:scale-[1.02] hover:shadow-xl rounded-lg'
               }`}
               onClick={handleSlideClick}
+              onTouchEnd={handleSlideTouch}
             >
+              {/* Left/Right Click Areas - Visual Indicators */}
+              <div className="absolute inset-0 z-[1] pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                {/* Left half indicator */}
+                <div className={`absolute left-0 top-0 w-1/2 h-full flex items-center justify-start pl-8 ${
+                  !isFirstSlide ? 'bg-gradient-to-r from-blue-500/10 to-transparent' : 'bg-gradient-to-r from-gray-400/5 to-transparent'
+                }`}>
+                  {!isFirstSlide && (
+                    <div className="bg-blue-500/80 text-white rounded-full p-2 backdrop-blur-sm">
+                      <ChevronLeft className="h-4 w-4" />
+                    </div>
+                  )}
+                </div>
+                {/* Right half indicator */}
+                <div className="absolute right-0 top-0 w-1/2 h-full bg-gradient-to-l from-blue-500/10 to-transparent flex items-center justify-end pr-8">
+                  <div className="bg-blue-500/80 text-white rounded-full p-2 backdrop-blur-sm">
+                    <ChevronRight className="h-4 w-4" />
+                  </div>
+                </div>
+              </div>
               {/* Maximize/Minimize Button - Top Right */}
               <Tooltip open={showInitialTooltips && currentSlideIndex === 0}>
                 <TooltipTrigger asChild>
@@ -407,7 +462,7 @@ export function PresentationComponent({
             </Card>
           </TooltipTrigger>
           <TooltipContent>
-            <p>클릭하여 다음 슬라이드로 이동</p>
+            <p>좌측 클릭: 이전 슬라이드 | 우측 클릭: 다음 슬라이드</p>
           </TooltipContent>
         </Tooltip>
       </div>
