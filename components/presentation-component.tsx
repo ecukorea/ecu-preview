@@ -135,7 +135,6 @@ export function PresentationComponent({
   }
 
   const handleSlideClick = (event: React.MouseEvent<HTMLDivElement>) => {
-    event.preventDefault()
     hideTooltips()
     if (isPlaying) {
       setIsPlaying(false)
@@ -148,28 +147,6 @@ export function PresentationComponent({
     const isLeftHalf = clickX < cardWidth / 2
 
     // Navigate based on click position
-    if (isLeftHalf) {
-      handlePrevious()
-    } else {
-      handleNext()
-    }
-  }
-
-  const handleSlideTouch = (event: React.TouchEvent<HTMLDivElement>) => {
-    event.preventDefault()
-    hideTooltips()
-    if (isPlaying) {
-      setIsPlaying(false)
-    }
-    
-    // Get touch position relative to the card
-    const rect = event.currentTarget.getBoundingClientRect()
-    const touch = event.changedTouches[0]
-    const touchX = touch.clientX - rect.left
-    const cardWidth = rect.width
-    const isLeftHalf = touchX < cardWidth / 2
-
-    // Navigate based on touch position
     if (isLeftHalf) {
       handlePrevious()
     } else {
@@ -274,7 +251,6 @@ export function PresentationComponent({
                   : 'w-full max-w-4xl border border-border/50 shadow-2xl hover:scale-[1.02] hover:shadow-xl rounded-lg'
               }`}
               onClick={handleSlideClick}
-              onTouchEnd={handleSlideTouch}
             >
               {/* Left/Right Click Areas - Visual Indicators */}
               <div className="absolute inset-0 z-[1] pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-300">
@@ -303,12 +279,6 @@ export function PresentationComponent({
                     size="sm"
                     onClick={(e) => {
                       e.stopPropagation() // Prevent slide click
-                      e.preventDefault()
-                      toggleMaximize()
-                    }}
-                    onTouchEnd={(e) => {
-                      e.stopPropagation() // Prevent slide touch
-                      e.preventDefault()
                       toggleMaximize()
                     }}
                     className={`absolute z-10 h-8 w-8 rounded-full transition-all duration-200 hover:scale-110 active:scale-95 ${
