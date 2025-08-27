@@ -303,6 +303,12 @@ export function PresentationComponent({
                     size="sm"
                     onClick={(e) => {
                       e.stopPropagation() // Prevent slide click
+                      e.preventDefault()
+                      toggleMaximize()
+                    }}
+                    onTouchEnd={(e) => {
+                      e.stopPropagation() // Prevent slide touch
+                      e.preventDefault()
                       toggleMaximize()
                     }}
                     className={`absolute z-10 h-8 w-8 rounded-full transition-all duration-200 hover:scale-110 active:scale-95 ${
