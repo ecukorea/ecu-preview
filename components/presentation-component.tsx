@@ -68,6 +68,7 @@ export function PresentationComponent({
   const [slideStartTime, setSlideStartTime] = useState<number>(Date.now())
   const [progressKey, setProgressKey] = useState(0)
   const [isMaximized, setIsMaximized] = useState(false)
+  const [showInitialTooltips, setShowInitialTooltips] = useState(true)
 
   const currentSlide = presentation.slides[currentSlideIndex]
   const isLastSlide = currentSlideIndex === presentation.slides.length - 1
@@ -82,6 +83,37 @@ export function PresentationComponent({
     return () => clearTimeout(timer)
   }, [currentSlideIndex])
 
+  // Hide initial tooltips after delay or user interaction
+  useEffect(() => {
+    if (showInitialTooltips && currentSlideIndex === 0) {
+      const timer = setTimeout(() => {
+        setShowInitialTooltips(false)
+      }, 6000) // Show for 6 seconds
+
+      return () => clearTimeout(timer)
+    }
+  }, [showInitialTooltips, currentSlideIndex])
+
+  // Reset tooltips when returning to first slide
+  useEffect(() => {
+    if (currentSlideIndex === 0 && !showInitialTooltips) {
+      const timer = setTimeout(() => {
+        setShowInitialTooltips(true)
+      }, 500) // Brief delay before showing again
+
+      return () => clearTimeout(timer)
+    } else if (currentSlideIndex > 0) {
+      setShowInitialTooltips(false)
+    }
+  }, [currentSlideIndex])
+
+  // Hide tooltips on any user interaction
+  const hideTooltips = () => {
+    if (showInitialTooltips) {
+      setShowInitialTooltips(false)
+    }
+  }
+
   // Update progress indicator
   useEffect(() => {
     if (!isPlaying || !currentSlide.duration) return
@@ -94,6 +126,7 @@ export function PresentationComponent({
   }, [isPlaying, currentSlide.duration, slideStartTime])
 
   const handleNext = () => {
+    hideTooltips()
     if (isLastSlide) {
       onComplete()
     } else {
@@ -102,6 +135,7 @@ export function PresentationComponent({
   }
 
   const handleSlideClick = () => {
+    hideTooltips()
     if (isPlaying) {
       setIsPlaying(false)
     }
@@ -109,22 +143,26 @@ export function PresentationComponent({
   }
 
   const handlePrevious = () => {
+    hideTooltips()
     if (!isFirstSlide) {
       setCurrentSlideIndex(currentSlideIndex - 1)
     }
   }
 
   const togglePlay = () => {
+    hideTooltips()
     setIsPlaying(!isPlaying)
   }
 
   const toggleMaximize = () => {
+    hideTooltips()
     setIsMaximized(!isMaximized)
   }
 
   // Keyboard navigation
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
+      hideTooltips()
       switch (event.code) {
         case "ArrowRight":
         case "Space":
@@ -192,7 +230,7 @@ export function PresentationComponent({
           ? 'fixed inset-0 z-40 bg-gradient-to-br from-background to-muted/20 pb-16' 
           : 'px-4 pb-4'
       }`}>
-        <Tooltip>
+        <Tooltip open={showInitialTooltips && currentSlideIndex === 0}>
           <TooltipTrigger asChild>
             <Card
               className={`relative overflow-hidden cursor-pointer group transition-all duration-500 ease-in-out bg-white ${
@@ -202,6 +240,30 @@ export function PresentationComponent({
               }`}
               onClick={handleSlideClick}
             >
+              {/* Maximize/Minimize Button - Top Right */}
+              <Tooltip open={showInitialTooltips && currentSlideIndex === 0}>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant={isMaximized ? "default" : "outline"}
+                    size="sm"
+                    onClick={(e) => {
+                      e.stopPropagation() // Prevent slide click
+                      toggleMaximize()
+                    }}
+                    className={`absolute z-10 h-8 w-8 rounded-full transition-all duration-200 hover:scale-110 active:scale-95 ${
+                      isMaximized 
+                        ? 'top-6 right-6 opacity-90 hover:opacity-100' 
+                        : 'top-4 right-4 opacity-70 hover:opacity-100'
+                    }`}
+                  >
+                    {isMaximized ? <Minimize className="h-3 w-3" /> : <Maximize className="h-3 w-3" />}
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>{isMaximized ? "전체화면 종료 (ESC)" : "전체화면 (F)"}</p>
+                </TooltipContent>
+              </Tooltip>
+
               {/* Subtle background pattern */}
               <div className="absolute inset-0 opacity-5">
                 <div className="absolute inset-0 bg-grid-pattern"></div>
@@ -398,7 +460,7 @@ export function PresentationComponent({
               </TooltipContent>
             </Tooltip>
 
-            <Tooltip>
+            <Tooltip open={showInitialTooltips && currentSlideIndex === 0}>
               <TooltipTrigger asChild>
                 <Button
                   variant={isPlaying ? "default" : "outline"}
@@ -411,22 +473,6 @@ export function PresentationComponent({
               </TooltipTrigger>
               <TooltipContent>
                 <p>{isPlaying ? "일시정지" : "자동재생"} (P)</p>
-              </TooltipContent>
-            </Tooltip>
-
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button
-                  variant={isMaximized ? "default" : "outline"}
-                  size="sm"
-                  onClick={toggleMaximize}
-                  className="h-8 w-8 rounded-full transition-transform duration-200 hover:scale-110 active:scale-95"
-                >
-                  {isMaximized ? <Minimize className="h-3 w-3" /> : <Maximize className="h-3 w-3" />}
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent>
-                <p>{isMaximized ? "전체화면 종료 (ESC)" : "전체화면 (F)"}</p>
               </TooltipContent>
             </Tooltip>
 
