@@ -42,6 +42,12 @@ export default function ChristianityLearningApp() {
     setSelectedAnswer(null)
     setShowResult(false)
     setConversationChoice(null)
+
+    // Scroll to top when new interaction is shown
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth",
+    })
   }, [currentIndex])
 
   const handleQuestionAnswer = (answerIndex: number) => {
