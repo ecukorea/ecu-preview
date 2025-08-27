@@ -8,7 +8,7 @@ export const data: Presentation[] = [
     chapter: "요한일서 2장 PBS 나눔 체험하기",
     slides: [
       {
-        content: `**ECU 토요모임**에서는 매주 \`PBS\`(Personal Bible Study)를 진행합니다.
+        content: `**ECU 토요모임**에서는 매주 \`PBS\`(Personal Bible Study) 나눔을 진행합니다.
 어떤식으로 함께 말씀을 나누는지 경험해보세요.`,
         speaker: {
           name: "등장 인물",
@@ -400,8 +400,8 @@ export const data: Presentation[] = [
             "/assets/lottie/female-02.lottie",
             "/assets/lottie/male-04.lottie",
           ],
-          width: 150,
-          height: 150,
+          width: 120,
+          height: 120,
         },
         duration: 8000,
         type: "lottie",
