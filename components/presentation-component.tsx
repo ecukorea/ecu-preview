@@ -4,7 +4,7 @@ import { useEffect, useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
-import { ChevronLeft, ChevronRight, Pause, Play } from "lucide-react"
+import { ChevronLeft, ChevronRight, Maximize, Minimize, Pause, Play } from "lucide-react"
 import { DotLottieReact } from "@lottiefiles/dotlottie-react"
 import { Presentation, UserProgress } from "@/lib/types"
 
@@ -67,6 +67,7 @@ export function PresentationComponent({
   const [isVisible, setIsVisible] = useState(false)
   const [slideStartTime, setSlideStartTime] = useState<number>(Date.now())
   const [progressKey, setProgressKey] = useState(0)
+  const [isMaximized, setIsMaximized] = useState(false)
 
   const currentSlide = presentation.slides[currentSlideIndex]
   const isLastSlide = currentSlideIndex === presentation.slides.length - 1
@@ -117,6 +118,10 @@ export function PresentationComponent({
     setIsPlaying(!isPlaying)
   }
 
+  const toggleMaximize = () => {
+    setIsMaximized(!isMaximized)
+  }
+
   // Keyboard navigation
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
@@ -134,12 +139,23 @@ export function PresentationComponent({
           event.preventDefault()
           togglePlay()
           break
+        case "KeyF":
+        case "F11":
+          event.preventDefault()
+          toggleMaximize()
+          break
+        case "Escape":
+          if (isMaximized) {
+            event.preventDefault()
+            setIsMaximized(false)
+          }
+          break
       }
     }
 
     window.addEventListener("keydown", handleKeyDown)
     return () => window.removeEventListener("keydown", handleKeyDown)
-  }, [currentSlideIndex, isPlaying])
+  }, [currentSlideIndex, isPlaying, isMaximized])
 
   // Auto-advance slides when playing
   useEffect(() => {
@@ -158,20 +174,32 @@ export function PresentationComponent({
   }, [currentSlideIndex, isPlaying, currentSlide.duration, isLastSlide])
 
   return (
-    <div className="bg-gradient-to-br from-background to-muted/20 relative">
+    <div className="bg-gradient-to-br from-background to-muted/20 relative transition-all duration-500 ease-in-out">
       {/* Chapter Title - Now at top without fixed positioning */}
-      <div className="pt-4 pb-6 text-center px-6">
-        <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-foreground bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
-          {presentation.chapter}
-        </h1>
+      <div className={`transition-all duration-500 ease-in-out overflow-hidden ${
+        isMaximized ? 'max-h-0 opacity-0' : 'max-h-20 opacity-100'
+      }`}>
+        <div className="pt-1 pb-3 text-center px-6">
+          <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-foreground bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
+            {presentation.chapter}
+          </h1>
+        </div>
       </div>
 
       {/* Main Slide Content - Expanded */}
-      <div className="flex-1 flex items-center justify-center px-4 pb-4">
+      <div className={`flex-1 flex items-center justify-center transition-all duration-500 ease-in-out ${
+        isMaximized 
+          ? 'fixed inset-0 z-40 bg-gradient-to-br from-background to-muted/20 pb-16' 
+          : 'px-4 pb-4'
+      }`}>
         <Tooltip>
           <TooltipTrigger asChild>
             <Card
-              className="w-full max-w-4xl relative overflow-hidden cursor-pointer group transition-all duration-300 hover:scale-[1.02] hover:shadow-xl bg-white border border-border/50 shadow-2xl"
+              className={`relative overflow-hidden cursor-pointer group transition-all duration-500 ease-in-out bg-white ${
+                isMaximized 
+                  ? 'w-full h-full border-0 rounded-none shadow-none' 
+                  : 'w-full max-w-4xl border border-border/50 shadow-2xl hover:scale-[1.02] hover:shadow-xl rounded-lg'
+              }`}
               onClick={handleSlideClick}
             >
               {/* Subtle background pattern */}
@@ -179,7 +207,11 @@ export function PresentationComponent({
                 <div className="absolute inset-0 bg-grid-pattern"></div>
               </div>
 
-              <div className="relative p-6 sm:p-10 md:p-16 min-h-[600px] sm:min-h-[650px] md:min-h-[700px] flex flex-col items-center justify-center text-center overflow-y-auto overflow-x-hidden">
+              <div className={`relative flex flex-col items-center justify-center text-center overflow-y-auto overflow-x-hidden transition-all duration-500 ease-in-out ${
+                isMaximized 
+                  ? 'p-8 sm:p-12 md:p-20 h-full pb-20' 
+                  : 'p-6 sm:p-10 md:p-16 min-h-[600px] sm:min-h-[650px] md:min-h-[700px]'
+              }`}>
                 {/* Speaker Name Only */}
                 {currentSlide.speaker && (
                   <div className="mb-8">
@@ -319,7 +351,7 @@ export function PresentationComponent({
       </div>
 
       {/* Fixed Bottom Controls */}
-      <div className="fixed bottom-0 left-0 right-0 z-20 bg-background/90 backdrop-blur-sm border-t border-border/50">
+      <div className="fixed bottom-0 left-0 right-0 z-50 bg-background/90 backdrop-blur-sm border-t border-border/50">
         {/* Progress Indicator */}
         <Tooltip>
           <TooltipTrigger asChild>
@@ -379,6 +411,22 @@ export function PresentationComponent({
               </TooltipTrigger>
               <TooltipContent>
                 <p>{isPlaying ? "일시정지" : "자동재생"} (P)</p>
+              </TooltipContent>
+            </Tooltip>
+
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant={isMaximized ? "default" : "outline"}
+                  size="sm"
+                  onClick={toggleMaximize}
+                  className="h-8 w-8 rounded-full transition-transform duration-200 hover:scale-110 active:scale-95"
+                >
+                  {isMaximized ? <Minimize className="h-3 w-3" /> : <Maximize className="h-3 w-3" />}
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>{isMaximized ? "전체화면 종료 (ESC)" : "전체화면 (F)"}</p>
               </TooltipContent>
             </Tooltip>
 
