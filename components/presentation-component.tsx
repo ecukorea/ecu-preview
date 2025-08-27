@@ -310,7 +310,7 @@ export function PresentationComponent({
                   <div className="mb-8">
                     <div className="inline-flex items-center gap-2 px-3 py-1 bg-secondary/20 rounded-full">
                       <span className="text-lg">{currentSlide.speaker.emoji}</span>
-                      <p className="text-lg sm:text-xl font-semibold text-secondary">
+                      <p className="text-lg sm:text-xl font-semibold text-secondary break-keep">
                         {currentSlide.speaker.name}
                       </p>
                     </div>
@@ -379,7 +379,7 @@ export function PresentationComponent({
                   )}
 
                   {currentSlide.type === "question" ? (
-                    <h3 className="text-lg sm:text-xl md:text-2xl font-bold leading-relaxed text-foreground mb-4">
+                    <h3 className="text-lg sm:text-xl md:text-2xl font-bold leading-relaxed text-foreground mb-4 break-keep">
                       {currentSlide.content.split("\n").map((line, index) => (
                         <span key={index}>
                           {parseFormattedText(line)}
@@ -392,7 +392,7 @@ export function PresentationComponent({
                       <div className="absolute -left-2 sm:-left-4 -top-2 sm:-top-4 text-4xl sm:text-6xl text-primary/20 font-serif">
                         &ldquo;
                       </div>
-                      <blockquote className="text-base sm:text-lg md:text-xl italic leading-relaxed text-foreground font-medium px-2 sm:px-6 py-3 sm:py-4 bg-primary/5 rounded-lg border-l-4 border-primary w-full max-w-full">
+                      <blockquote className="text-base sm:text-lg md:text-xl italic leading-relaxed text-foreground font-medium px-2 sm:px-6 py-3 sm:py-4 bg-primary/5 rounded-lg border-l-4 border-primary w-full max-w-full break-keep">
                         {currentSlide.content.split("\n").map((line, index) => (
                           <span key={index}>
                             {parseFormattedText(line)}
@@ -406,7 +406,7 @@ export function PresentationComponent({
                     </div>
                   ) : currentSlide.type === "lottie" ? (
                     <div className="text-center space-y-2 sm:space-y-4">
-                      <p className="text-base sm:text-lg md:text-xl leading-relaxed text-foreground font-medium">
+                      <p className="text-base sm:text-lg md:text-xl leading-relaxed text-foreground font-medium break-keep">
                         {currentSlide.content.split("\n").map((line, index) => (
                           <span key={index}>
                             {parseFormattedText(line)}
@@ -416,7 +416,7 @@ export function PresentationComponent({
                       </p>
                     </div>
                   ) : (
-                    <p className="text-base sm:text-lg md:text-xl leading-relaxed text-foreground font-medium max-w-full px-2">
+                    <p className="text-base sm:text-lg md:text-xl leading-relaxed text-foreground font-medium max-w-full px-2 break-keep">
                       {currentSlide.content.split("\n").map((line, index) => (
                         <span key={index}>
                           {parseFormattedText(line)}

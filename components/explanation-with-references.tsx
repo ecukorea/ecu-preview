@@ -48,7 +48,7 @@ export function ExplanationWithReferences({
             <TooltipContent className="max-w-sm p-3">
               <div className="space-y-1">
                 <div className="font-semibold text-sm">{part}</div>
-                <div className="text-xs leading-relaxed">{content}</div>
+                <div className="text-xs leading-relaxed break-keep">{content}</div>
               </div>
             </TooltipContent>
           </Tooltip>
@@ -62,12 +62,12 @@ export function ExplanationWithReferences({
 
   return (
     <div className={className}>
-      <p className="text-base text-muted-foreground leading-relaxed mb-3">
+      <p className="text-base text-muted-foreground leading-relaxed mb-3 break-keep">
         {renderExplanationWithTooltips()}
       </p>
       {references.length > 0 && (
         <div className="space-y-2">
-          <p className="text-sm text-muted-foreground">
+          <p className="text-sm text-muted-foreground break-keep">
             <span className="font-medium">참고 말씀:</span>{" "}
             {references.map((ref, index) => (
               <span key={index}>
@@ -84,7 +84,7 @@ export function ExplanationWithReferences({
                         <TooltipContent className="max-w-sm p-3">
                           <div className="space-y-1">
                             <div className="font-semibold text-sm">{ref.book}</div>
-                            <div className="text-sm leading-relaxed">{ref.content}</div>
+                            <div className="text-sm leading-relaxed break-keep">{ref.content}</div>
                           </div>
                         </TooltipContent>
                       </Tooltip>
@@ -112,7 +112,7 @@ export function ExplanationWithReferences({
           {expandedReference && (
             <div className="md:hidden bg-muted/50 p-3 rounded-lg border">
               <div className="font-semibold text-sm mb-1">{expandedReference}</div>
-              <div className="text-sm leading-relaxed">
+              <div className="text-sm leading-relaxed break-keep">
                 {references.find(ref => ref.book === expandedReference)?.content}
               </div>
             </div>

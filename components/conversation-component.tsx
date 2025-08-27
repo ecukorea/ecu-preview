@@ -89,7 +89,7 @@ export function ConversationComponent({
                   }`}
                 ></div>
                 <p
-                  className={`font-medium leading-relaxed ${
+                  className={`font-medium leading-relaxed break-keep ${
                     message.speaker === "person1" ? "text-blue-900" : "text-green-900"
                   }`}
                 >
@@ -181,7 +181,7 @@ export function ConversationComponent({
                   }`}
                 ></div>
                 <p
-                  className={`font-medium leading-relaxed ${
+                  className={`font-medium leading-relaxed break-keep ${
                     message.speaker === "person1" ? "text-blue-900" : "text-green-900"
                   }`}
                 >

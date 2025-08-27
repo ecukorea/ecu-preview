@@ -66,7 +66,7 @@ export function QuestionComponent({
       {showScenario && (
         <div className="mb-4 animate-in fade-in duration-500 slide-in-from-bottom-2">
           <Card className="p-4 bg-muted">
-            <p className="text-base text-muted-foreground leading-relaxed font-bold">
+            <p className="text-base text-muted-foreground leading-relaxed font-bold break-keep">
               {question.scenario}
             </p>
           </Card>
@@ -81,7 +81,7 @@ export function QuestionComponent({
             <div className="flex-1">
               <Card className="p-4 bg-blue-50 border-blue-200 relative">
                 <div className="absolute -left-2 top-4 w-0 h-0 border-t-8 border-b-8 border-r-8 border-transparent border-r-blue-50"></div>
-                <p className="text-blue-900 font-medium leading-relaxed">
+                <p className="text-blue-900 font-medium leading-relaxed break-keep">
                   {question.friendQuestion}
                 </p>
               </Card>
@@ -133,7 +133,7 @@ export function QuestionComponent({
                     >
                       {String.fromCharCode(65 + index)}
                     </div>
-                    <span className="font-medium leading-relaxed">{option}</span>
+                    <span className="font-medium leading-relaxed break-keep">{option}</span>
                     {showResult && index === question.correctAnswer && (
                       <CheckCircle className="w-5 h-5 text-green-500 ml-auto mt-1 flex-shrink-0" />
                     )}

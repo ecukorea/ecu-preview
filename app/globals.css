@@ -130,6 +130,13 @@
   }
 }
 
+@layer utilities {
+  .break-keep {
+    word-break: keep-all;
+    overflow-wrap: break-word;
+  }
+}
+
 @keyframes fade-in {
   from {
     opacity: 0;
