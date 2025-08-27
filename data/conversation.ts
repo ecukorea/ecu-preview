@@ -94,13 +94,25 @@ export const data: Conversation[] = [
                 speaker: "person2",
                 name: "영희",
                 emoji: "😕",
+                message: "참고 견디면 언젠가 좋아지지 않을까?",
+              },
+              {
+                speaker: "person1",
+                name: "민수",
+                emoji: "🙁",
+                message: "...",
+              },
+              {
+                speaker: "person2",
+                name: "영희",
+                emoji: "🤗",
                 message:
                   "음... 그런데 그냥 참는 것만이 답은 아닌 것 같아. 고난에는 분명 의미가 있을 거야.",
               },
               {
                 speaker: "person1",
                 name: "민수",
-                emoji: "😔",
+                emoji: "🤔",
                 message: "그럼 이 고난의 의미를 어떻게 찾을 수 있을까?",
               },
               {
