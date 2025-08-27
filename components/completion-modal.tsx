@@ -2,7 +2,6 @@
 
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
-import { Trophy } from "lucide-react"
 import { trackExternalLinkClick } from "@/lib/analytics"
 
 interface CompletionModalProps {
@@ -25,7 +24,6 @@ export function CompletionModal({ isOpen }: CompletionModalProps) {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
       <Card className="p-6 sm:p-8 mx-4 max-w-lg w-full text-center shadow-2xl border-2">
-        <Trophy className="w-16 h-16 text-primary mx-auto mb-4 animate-bounce" />
         <h3 className="text-xl sm:text-2xl font-bold mb-4 break-keep">
           여기까지 함께 해주셔서 감사합니다! 😊
         </h3>
