@@ -121,7 +121,7 @@ export default function ChristianityLearningApp() {
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
-      <div className="sticky top-0 z-10 bg-card border-b border-border p-4">
+      <div className="sticky top-0 z-10 bg-card border-b border-border pt-4 px-4 pb-2">
         <div className="mb-3">
           <div className="flex items-center gap-3 mb-1">
             <Image
@@ -198,17 +198,21 @@ export default function ChristianityLearningApp() {
           </div>
         </div>
 
-        <Progress value={progressPercentage} className="h-2" />
-        <div className="mt-2">
-          <span className="text-xs text-muted-foreground">
-            {currentItem.type === "question"
-              ? "상황"
-              : currentItem.type === "conversation"
-                ? "이야기"
-                : "프레젠테이션"}{" "}
-            {currentIndex + 1} / {interactions.length}
-          </span>
-        </div>
+        {currentItem.type !== "presentation" && (
+          <>
+            <Progress value={progressPercentage} className="h-2" />
+            <div className="mt-2">
+              <span className="text-xs text-muted-foreground">
+                {currentItem.type === "question"
+                  ? "상황"
+                  : currentItem.type === "conversation"
+                    ? "이야기"
+                    : "프레젠테이션"}{" "}
+                {currentIndex + 1} / {interactions.length}
+              </span>
+            </div>
+          </>
+        )}
       </div>
 
       {/* Main Content */}
