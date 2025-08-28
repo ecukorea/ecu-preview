@@ -1,10 +1,14 @@
-import { data as quizData } from "./quiz"
-import { data as conversationData } from "./conversation"
-import { data as presentationData } from "./presentation"
+import { data as defaultData } from "./campuses/default"
+import { data as testCampus } from "./campuses/test"
 import { InteractionItem } from "@/lib/types"
 
-export const interactions: InteractionItem[] = [
-  ...quizData,
-  ...conversationData,
-  ...presentationData,
-].map((interaction, idx) => ({ ...interaction, id: idx }))
+const campusData = {
+  default: defaultData,
+  test: testCampus,
+}
+
+export function getInteractions(campus?: string): InteractionItem[] {
+  const selectedCampus =
+    campus && campus in campusData ? (campus as keyof typeof campusData) : "default"
+  return campusData[selectedCampus]
+}

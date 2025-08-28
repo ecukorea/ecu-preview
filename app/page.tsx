@@ -1,6 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react"
+import { useSearchParams } from "next/navigation"
 import Image from "next/image"
 import { Button } from "@/components/ui/button"
 import { Progress } from "@/components/ui/progress"
@@ -10,7 +11,7 @@ import { ConversationComponent } from "@/components/conversation-component"
 import { PresentationComponent } from "@/components/presentation-component"
 import { CompletionModal } from "@/components/completion-modal"
 import { Conversation, Presentation, Question, UserProgress } from "@/lib/types"
-import { interactions } from "@/data"
+import { getInteractions } from "@/data"
 import {
   trackConversationCompleted,
   trackExternalLinkClick,
@@ -22,6 +23,10 @@ import {
 } from "@/lib/analytics"
 
 export default function ChristianityLearningApp() {
+  const searchParams = useSearchParams()
+  const campus = searchParams.get('campus')
+  
+  const [interactions, setInteractions] = useState(() => getInteractions(campus || undefined))
   const [currentIndex, setCurrentIndex] = useState(0)
   const [selectedAnswer, setSelectedAnswer] = useState<number | null>(null)
   const [showResult, setShowResult] = useState(false)
@@ -33,6 +38,16 @@ export default function ChristianityLearningApp() {
     correctAnswers: 0,
     level: 1,
   })
+
+  // Update interactions when campus query parameter changes
+  useEffect(() => {
+    const newInteractions = getInteractions(campus || undefined)
+    setInteractions(newInteractions)
+    setCurrentIndex(0) // Reset to first item when campus changes
+    setSelectedAnswer(null)
+    setShowResult(false)
+    setConversationChoice(null)
+  }, [campus])
 
   const currentItem = interactions[currentIndex]
   const progressPercentage = ((currentIndex + 1) / interactions.length) * 100
